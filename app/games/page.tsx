@@ -47,8 +47,8 @@ export default function GamesPage() {
         <motion.div variants={stagger.item}
           className="flex items-center justify-between px-4 pt-6 pb-2">
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tight">My Games</h1>
-            <p className="text-xs text-neutral mt-0.5">Organize and track your games</p>
+            <h1 className="text-2xl font-black text-white tracking-tight font-heading">My Games</h1>
+            <p className="text-xs text-[#ADAAAA] mt-0.5 font-ui">Organize and track your games</p>
           </div>
           <button className="relative h-10 w-10 rounded-full flex items-center justify-center tap-highlight"
                   style={{ background: '#1E1E1E', border: '1px solid #2A2A2A' }}>

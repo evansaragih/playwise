@@ -41,7 +41,7 @@ export default function InsightsPage() {
 
         {/* ── HEADER ── */}
         <motion.div variants={stagger.item} className="px-4 pt-6 pb-2">
-          <h1 className="text-2xl font-black text-white tracking-tight">Insights</h1>
+          <h1 className="text-2xl font-black text-white tracking-tight font-heading">Insights</h1>
         </motion.div>
 
         {/* ── MONTHLY SPENDING CARD ── */}
@@ -52,7 +52,7 @@ export default function InsightsPage() {
 
           <div className="flex items-end justify-between mb-4">
             <div>
-              <p className="text-3xl font-black text-white">{mockInsights.monthlySpend}</p>
+              <p className="text-3xl font-black text-white font-heading">{mockInsights.monthlySpend}</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <TrendingUp size={12} color="#00FF41" />
                 <span className="text-xs font-semibold" style={{ color: '#00FF41' }}>
@@ -142,7 +142,7 @@ export default function InsightsPage() {
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral">Average Cost</p>
             </div>
             <p className="text-[10px] text-neutral mb-1">Per game played</p>
-            <p className="text-xl font-black text-white">{mockInsights.avgCost.value}</p>
+            <p className="text-xl font-black text-white font-heading">{mockInsights.avgCost.value}</p>
             <div className="flex items-center gap-1 mt-1">
               <TrendingDown size={11} color="#9CFF93" />
               <span className="text-[10px] font-semibold" style={{ color: '#9CFF93' }}>
@@ -158,7 +158,7 @@ export default function InsightsPage() {
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral">Peak Hour</p>
             </div>
             <p className="text-[10px] text-neutral mb-1">Per game played</p>
-            <p className="text-3xl font-black text-white">{mockInsights.peakHour.value}</p>
+            <p className="text-3xl font-black text-white font-heading">{mockInsights.peakHour.value}</p>
             <div className="flex items-center gap-1 mt-1">
               <TrendingDown size={11} color="#9CFF93" />
               <span className="text-[10px] font-semibold" style={{ color: '#9CFF93' }}>

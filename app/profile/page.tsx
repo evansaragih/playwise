@@ -73,7 +73,7 @@ export default function ProfilePage() {
           <motion.h1
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl font-black text-white tracking-tight">
+            className="text-xl font-black text-white tracking-tight font-heading">
             {mockProfile.name}
           </motion.h1>
           <motion.p
@@ -108,7 +108,7 @@ export default function ProfilePage() {
                 className="rounded-2xl p-3 flex flex-col items-center justify-center gap-1 text-center"
                 style={{ background: '#20201F' }}>
                 <stat.icon size={16} color={stat.color} />
-                <p className="text-sm font-black text-white leading-tight">{stat.value}</p>
+                <p className="text-sm font-black text-white leading-tight font-heading">{stat.value}</p>
                 <p className="text-[10px] text-neutral">{stat.label}</p>
               </motion.div>
             ))}

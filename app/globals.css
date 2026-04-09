@@ -1,19 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   background: #020202;
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  /* Lexend is the default UI font (body copy, labels, chips, nav) */
+  font-family: 'Lexend', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
   overscroll-behavior: none;
 }
 
-/* Mobile container - max 393px centered */
+/* Space Grotesk: headings, titles, big numbers, sport labels, CTA buttons */
+.font-heading { font-family: 'Space Grotesk', sans-serif; }
+
+/* Lexend explicitly (for clarity in code) */
+.font-ui { font-family: 'Lexend', sans-serif; }
+
+/* Mobile container */
 .mobile-container {
   max-width: 393px;
   min-height: 100svh;
@@ -23,27 +31,64 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Shimmer skeleton */
+/* ── Shimmer skeleton ── */
 .skeleton {
   background: linear-gradient(90deg, #1E1E1E 25%, #2A2A2A 50%, #1E1E1E 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
 }
+@keyframes shimmer {
+  0%   { background-position: -200% 0 }
+  100% { background-position:  200% 0 }
+}
 
-/* Scrollbar hide */
+/* ── Liquid Glass pill — outer nav container ──
+   Figma specs:
+   - bg: #1A1A1A @ 20% opacity
+   - backdrop-blur: radius 51.97 → blur(26px)
+   - border-radius: 433px
+   - inner shadow 1: rgba(242,242,242,0.50) blur 95px (glow)
+   - inner shadow 2: rgba(179,179,179,0.40) x:-9 y:-9 blur:9 spread:-12
+   - inner shadow 3: rgba(179,179,179,1.00) x:9  y:9  blur:4  spread:-12
+*/
+.liquid-glass-nav {
+  background: rgba(26, 26, 26, 0.20);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  border-radius: 433px;
+  box-shadow:
+    inset 0    0   95px  0   rgba(242, 242, 242, 0.50),
+    inset -9px -9px 9px -12px rgba(179, 179, 179, 0.40),
+    inset  9px  9px 4px -12px rgba(179, 179, 179, 1.00);
+}
+
+/* ── Liquid Glass active tab pill ──
+   Figma specs:
+   - bg: #9CFF93
+   - border-radius: 999px
+   - drop-shadow glow: rgba(156,255,147,0.30) blur:20
+   - drop-shadow depth: rgba(0,0,0,0.25)      y:8 blur:10 spread:-2
+   - inner shadow:  rgba(0,255,0,0.10)          blur:4
+*/
+.liquid-glass-active {
+  background: #9CFF93;
+  border-radius: 999px;
+  box-shadow:
+    0  0   20px  0    rgba(156, 255, 147, 0.30),
+    0  8px  10px -2px rgba(0,   0,   0,   0.25),
+    inset 0 0  4px  0  rgba(0, 255,   0,  0.10);
+}
+
+/* ── Scrollbar hide ── */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Safe area bottom for mobile */
+/* ── Safe area ── */
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-/* Page transition wrapper */
-.page-enter { opacity: 0; transform: translateY(16px); }
-.page-enter-active { opacity: 1; transform: translateY(0); transition: opacity 0.35s ease, transform 0.35s ease; }
-
-/* Green glow on primary elements */
-.glow-primary { box-shadow: 0 0 20px rgba(0, 255, 65, 0.25); }
-
-/* Active tap feedback */
+/* ── Tap feedback ── */
 .tap-highlight { -webkit-tap-highlight-color: transparent; }
+
+/* ── Green glow (primary CTA) ── */
+.glow-green { box-shadow: 0 0 20px rgba(156, 255, 147, 0.30); }

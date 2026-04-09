@@ -38,7 +38,7 @@ export default function DiscoverPage() {
 
         {/* ── HEADER ── */}
         <motion.div variants={stagger.item} className="px-4 pt-6 pb-2">
-          <h1 className="text-2xl font-black text-white tracking-tight">Discover Courts</h1>
+          <h1 className="text-2xl font-black text-white tracking-tight font-heading">Discover Courts</h1>
         </motion.div>
 
         {/* ── SEARCH ── */}
