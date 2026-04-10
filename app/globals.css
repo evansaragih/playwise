@@ -111,7 +111,10 @@ html, body {
     inset  9px  9px 4px -12px rgba(179, 179, 179, 1.00);
 }
 
-/* ── Scrollbar hide ── */
+/* ── Scrollbar hide (Global + Util) ── */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
+
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
