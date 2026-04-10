@@ -319,6 +319,36 @@ export default function HomePage() {
 
         </div>
       </motion.div>
+      {/* ── FAB: Create New Game ──
+          Figma: 56×56, bg:#006413, r:433 (circle), liquid glass effects
+          Position: fixed bottom-24 right-4 (above nav, right-aligned)
+          Icon: + (lucide Plus), color #9CFF93
+      */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.6, type: 'spring', stiffness: 280, damping: 20 }}
+        whileTap={{ scale: 0.90 }}
+        className="fixed z-40 flex items-center justify-center tap-highlight"
+        style={{
+          bottom: 88,
+          right: 16,
+          width: 56, height: 56,
+          background: '#006413',
+          borderRadius: 9999,
+          boxShadow: [
+            'inset 0 0 95px 0 rgba(242,242,242,0.50)',
+            'inset -9px -9px 9px -12px rgba(179,179,179,0.40)',
+            'inset 9px 9px 4px -12px rgba(179,179,179,1.00)',
+          ].join(', '),
+        }}
+      >
+        {/* Plus icon — #9CFF93 24×24 */}
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CFF93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </motion.button>
+
       <BottomNav />
     </div>
   )
