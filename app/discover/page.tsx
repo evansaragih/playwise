@@ -241,17 +241,14 @@ export default function DiscoverPage() {
             animate={{ y:0, opacity:1 }}
             exit={{ y:200, opacity:0 }}
             transition={{ type:'spring', stiffness:340, damping:34 }}
+            className="fixed z-[500]"
             style={{
-              position:'fixed',
-              bottom:0,
-              left:'50%',
-              transform:'translateX(-50%)',
-              width:'100%',
-              maxWidth:393,
-              zIndex:500,
-              /* gradient fade so map peeks through at top */
-              background:'linear-gradient(to top, #020202 60%, transparent 100%)',
-              padding:'32px 16px 24px',
+              /* Anchor to mobile frame - works on both mobile device and desktop preview */
+              left: 'max(0px, calc(50% - 196.5px))',
+              right: 'max(0px, calc(50% - 196.5px))',
+              bottom: 0,
+              background: 'linear-gradient(to top, #020202 55%, transparent 100%)',
+              padding: '28px 16px 24px',
             }}>
 
             {/* Venue card — bg:#20201F r:16 p:16 gap:16 */}
