@@ -30,7 +30,7 @@ const SPORTS = [
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [expiresAt] = useState(() => new Date(Date.now() + 19 * 60 * 1000 + 54 * 1000))
-  useEffect(() => { const t = setTimeout(() => setLoading(false), 1400); return () => clearTimeout(t) }, [])
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 500); return () => clearTimeout(t) }, [])
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><HomeScreenSkeleton /></div>
 
   return (
@@ -114,18 +114,7 @@ export default function HomePage() {
           </motion.div>
 
           {/* ── MONTHLY SPEND bg:#00677F r:16 ── */}
-          <motion.div variants={stagger.item}
-            className="rounded-2xl px-6 py-4 flex flex-col"
-            style={{ background: '#00677F', gap: 8 }}>
-            <div className="flex justify-between items-center">
-              <span className="font-heading font-bold text-[18px]" style={{ color: '#EEF9FF' }}>Monthly Spend</span>
-              <TrendingUp size={20} color="#EEF9FF" strokeWidth={1.5} />
-            </div>
-            <p className="font-heading font-bold text-[32px] leading-tight" style={{ color: '#EEF9FF' }}>
-              {mockMonthlySpend.amount}
-            </p>
-            <p className="font-ui text-[12px]" style={{ color: '#EEF9FF' }}>{mockMonthlySpend.trend}</p>
-          </motion.div>
+          <AnimatedSpendCard />
 
           {/* ── UPCOMING GAMES ──
               Card: 361×226, r:16, overflow-hidden
@@ -216,7 +205,8 @@ export default function HomePage() {
             <div className="-mx-4 overflow-x-auto scrollbar-hide">
               <div className="flex pl-4" style={{ gap: 16, width: 'max-content', paddingRight: 16 }}>
                 {mockNearbyVenues.map((v, i) => (
-                  <motion.div key={v.id}
+                  <Link key={v.id} href={`/venue/${v.id}`} className="block">
+                  <motion.div
                     initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.09 + 0.1 }}
                     whileTap={{ scale: 0.97 }}
@@ -276,6 +266,7 @@ export default function HomePage() {
                       </div>
                     </div>
                   </motion.div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -356,6 +347,38 @@ function AnimatedStreakCard() {
                transition={{ duration: 0.35, delay: i * 0.12 + 0.3 }} />
         ))}
       </div>
+    </motion.div>
+  )
+}
+
+function AnimatedSpendCard() {
+  const count = useMotionValue(0)
+  
+  // Extract number from string (e.g. "Rp 4,482,500" -> 4482500)
+  const numericValue = parseInt(mockMonthlySpend.amount.replace(/\D/g, ''), 10)
+  
+  // Format the evolving number back to Indonesian Rupiah representation
+  const formattedCount = useTransform(count, (latest) => {
+    return 'Rp ' + Math.round(latest).toLocaleString('en-US')
+  })
+
+  useEffect(() => {
+    const controls = animate(count, numericValue, { duration: 1.4, delay: 0.25, ease: 'easeOut' })
+    return controls.stop
+  }, [])
+
+  return (
+    <motion.div variants={stagger.item}
+      className="rounded-2xl px-6 py-4 flex flex-col"
+      style={{ background: '#00677F', gap: 8 }}>
+      <div className="flex justify-between items-center">
+        <span className="font-heading font-bold text-[18px]" style={{ color: '#EEF9FF' }}>Monthly Spend</span>
+        <TrendingUp size={20} color="#EEF9FF" strokeWidth={1.5} />
+      </div>
+      <motion.p className="font-heading font-bold text-[32px] leading-tight" style={{ color: '#EEF9FF' }}>
+        {formattedCount}
+      </motion.p>
+      <p className="font-ui text-[12px]" style={{ color: '#EEF9FF' }}>{mockMonthlySpend.trend}</p>
     </motion.div>
   )
 }

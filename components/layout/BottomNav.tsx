@@ -57,7 +57,7 @@ export default function BottomNav() {
                   size={22}
                   color={active ? '#006413' : '#F3F3F3'}
                   fill={active ? '#006413' : 'none'}
-                  strokeWidth={active ? 0 : 1.5}
+                  strokeWidth={active ? 2.5 : 1.5}
                 />
                 <span className="font-ui text-[12px] font-normal leading-none"
                       style={{ color: active ? '#006413' : '#F3F3F3' }}>

@@ -44,35 +44,7 @@ export const mockUpcomingGames = [
   },
 ]
 
-export const mockNearbyVenues = [
-  {
-    id: '1',
-    name: 'Urban Padel Club',
-    location: 'Chamberí, Madrid • 1.2km',
-    rating: 4.9,
-    availableFrom: '17:00',
-    priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&q=85&fit=crop',
-  },
-  {
-    id: '2',
-    name: 'Urban Padel Club',
-    location: 'Chamberí, Madrid • 1.2km',
-    rating: 4.9,
-    availableFrom: '17:00',
-    priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=85&fit=crop',
-  },
-  {
-    id: '3',
-    name: 'SportHub Arena',
-    location: 'Central Jakarta • 1.2km',
-    rating: 4.9,
-    availableFrom: '08:00',
-    priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop',
-  },
-]
+
 
 export const mockVenues = [
   // Jakarta Pusat
@@ -95,6 +67,16 @@ export const mockVenues = [
   { id:'13', name:'Taman Anggrek Sports', location:'Taman Anggrek, West Jakarta', area:'Jakarta Barat', distance:'5.6km', rating:4.7, hours:'08:00 - 22:00', price:'Rp 280,000', sports:['padel','futsal'],   courts:3, lat:-6.1797, lng:106.7901, image:'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=720&q=85&fit=crop', policy:'Located in a premium mall complex. Parking validated for 3 hours.' },
   { id:'14', name:'Grogol Arena',         location:'Grogol, West Jakarta',      area:'Jakarta Barat', distance:'6.3km', rating:4.5, hours:'07:00 - 21:00', price:'Rp 160,000', sports:['tennis','badminton'], courts:2, lat:-6.1666, lng:106.7936, image:'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=720&q=85&fit=crop', policy:'Public venue. Walk-ins welcome subject to availability.' },
 ]
+
+export const mockNearbyVenues = mockVenues.slice(0, 4).map(v => ({
+  id: v.id,
+  name: v.name,
+  location: `${v.location} • ${v.distance}`,
+  rating: v.rating,
+  availableFrom: v.hours.split(' - ')[0],
+  priceFrom: v.price,
+  image: v.image,
+}))
 
 
 export const mockGames = {

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { HiStar } from 'react-icons/hi'
 import { GrLocation } from 'react-icons/gr'
 import { LuSearch, LuList, LuMap } from 'react-icons/lu'
+import { MdSportsTennis, MdSportsCricket } from 'react-icons/md'
+import { IoTennisball, IoFootball, IoBasketball } from 'react-icons/io5'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import BottomNav from '@/components/layout/BottomNav'
@@ -15,7 +17,16 @@ const MapView = dynamic(() => import('@/components/ui/MapView'), {
   loading: () => <div className="w-full h-full" style={{ background:'#1A1A1A' }} />,
 })
 
-const FILTERS = ['Nearby', 'Favorite', 'Price Low-High', 'Top Rated']
+const SPORT_ICONS: Record<string, React.ReactNode> = {
+  padel:     <MdSportsTennis  size={14} />,
+  tennis:    <IoTennisball    size={14} />,
+  futsal:    <IoFootball      size={14} />,
+  badminton: <IoBasketball    size={14} />,
+  cricket:   <MdSportsCricket size={14} />,
+  basket:    <IoBasketball    size={14} />,
+}
+
+const FILTERS = ['Nearby', 'All', 'padel', 'tennis', 'futsal', 'badminton', 'cricket', 'basket']
 
 const VENUES = [
   { id:'1', name:'SportHub Arena',     location:'Central Jakarta', distance:'1.2km', rating:4.9, hours:'08:00 - 23:00', price:'Rp 400,000', lat:-6.1754,  lng:106.8272, image:'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop' },
@@ -110,17 +121,25 @@ export default function DiscoverPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex gap-[7px] overflow-x-auto scrollbar-hide mb-3">
-            {FILTERS.map(f => (
-              <motion.button key={f} whileTap={{ scale:0.95 }}
-                onClick={() => setFilter(f)}
-                className="flex-none font-ui font-semibold text-[12px] h-[34px] px-4 rounded-full transition-all"
-                style={activeFilter===f
-                  ? { background:'#9CFF93', color:'#006413' }
-                  : { background:'#20201F', color:'#ADAAAA' }}>
-                {f}
-              </motion.button>
-            ))}
+          <div className="-mx-4 overflow-x-auto scrollbar-hide mb-3">
+            <div className="flex pl-4" style={{ gap: 7, paddingRight: 16, width: 'max-content' }}>
+              {FILTERS.map(f => {
+                const isActive = activeFilter === f
+                const label = f === 'Nearby' || f === 'All' ? f : f.charAt(0).toUpperCase() + f.slice(1)
+                const icon = SPORT_ICONS[f]
+                return (
+                  <motion.button key={f} whileTap={{ scale:0.95 }}
+                    onClick={() => setFilter(f)}
+                    className="flex-none flex items-center gap-1.5 font-ui font-semibold text-[12px] h-[34px] px-4 rounded-full transition-all"
+                    style={isActive
+                      ? { background:'#9CFF93', color:'#006413' }
+                      : { background:'#20201F', color:'#ADAAAA' }}>
+                    {icon && <span style={{ color: isActive ? '#006413' : '#9E9E9E' }}>{icon}</span>}
+                    {label}
+                  </motion.button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Count + view toggle */}

@@ -5,7 +5,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { HiStar } from 'react-icons/hi'
 import { GrLocation } from 'react-icons/gr'
 import { LuChevronLeft, LuClock, LuCalendar, LuChevronRight } from 'react-icons/lu'
+import { MdSportsTennis, MdSportsCricket } from 'react-icons/md'
+import { IoTennisball, IoFootball, IoBasketball } from 'react-icons/io5'
 import { mockVenues } from '@/lib/mock-data'
+
+const SPORT_ICONS: Record<string, React.ReactNode> = {
+  padel:     <MdSportsTennis  size={14} />,
+  tennis:    <IoTennisball    size={14} />,
+  futsal:    <IoFootball      size={14} />,
+  badminton: <IoBasketball    size={14} />,
+  cricket:   <MdSportsCricket size={14} />,
+  basket:    <IoBasketball    size={14} />,
+}
 
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.06 } } },
@@ -168,10 +179,11 @@ export default function VenueDetailPage() {
           <p className="font-heading font-bold text-white" style={{ fontSize:16 }}>Available Sports</p>
           <div className="flex gap-2 flex-wrap">
             {venue.sports.map(s => (
-              <span key={s} className="font-ui font-semibold text-[12px] px-4 py-2 rounded-full capitalize"
+              <div key={s} className="flex items-center gap-1.5 font-ui font-semibold text-[12px] px-4 py-2 rounded-full capitalize"
                     style={{ background:'#20201F', color:'#9CFF93', border:'1px solid rgba(156,255,147,0.3)' }}>
-                {s}
-              </span>
+                {SPORT_ICONS[s]}
+                <span>{s}</span>
+              </div>
             ))}
           </div>
         </motion.div>
