@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GrLocation } from 'react-icons/gr'
@@ -37,21 +37,62 @@ export default function BookingSummaryPage() {
 
   /* Build initial booking from query params */
   const initialSlots = useMemo(() => {
+    let baseCart: BookingSlot[] = []
+    const cartParam = searchParams.get('cart')
+    if (cartParam) {
+       try {
+         baseCart = JSON.parse(cartParam)
+         baseCart.forEach((b: any) => b.date = new Date(b.date))
+       } catch(e){}
+    }
+
     const slotsParam = searchParams.get('slots')
+    if (!slotsParam) return baseCart
+
     const courtParam = parseInt(searchParams.get('court') || '1')
     const dateParam  = searchParams.get('date')
     const date       = dateParam ? new Date(dateParam) : new Date()
-    const hours      = slotsParam ? slotsParam.split(',').map(Number) : [10, 11]
-    return [{
-      id: `slot-${Date.now()}`,
+    const rawHours   = slotsParam.split(',').map(Number)
+
+    const sorted = [...rawHours].sort((a,b)=>a-b)
+    const segments: number[][] = []
+    let currentSegment: number[] = []
+    
+    sorted.forEach((hour) => {
+      if (currentSegment.length === 0) {
+        currentSegment.push(hour)
+      } else {
+        const last = currentSegment[currentSegment.length - 1]
+        if (hour === last + 1) {
+          currentSegment.push(hour)
+        } else {
+          segments.push(currentSegment)
+          currentSegment = [hour]
+        }
+      }
+    })
+    if (currentSegment.length > 0) {
+      segments.push(currentSegment)
+    }
+
+    const newSlots = segments.map((hoursGroup, idx) => ({
+      // Use deterministic ID instead of Date.now() to prevent Hydration layout breakage
+      id: `slot-${courtParam}-${hoursGroup[0]}-${idx}`,
       court: courtParam,
-      hours,
+      hours: hoursGroup,
       date,
-    }] as BookingSlot[]
-  }, [])
+    })) as BookingSlot[]
+
+    return [...baseCart, ...newSlots]
+  }, [searchParams])
 
   const [bookings, setBookings] = useState<BookingSlot[]>(initialSlots)
   const [removing, setRemoving] = useState<string | null>(null)
+
+  // Sync state if softly navigated backward/forward with different queries
+  useEffect(() => {
+    setBookings(initialSlots)
+  }, [initialSlots])
 
   if (!venue) return (
     <div className="min-h-screen bg-[#020202] flex items-center justify-center">
@@ -88,12 +129,14 @@ export default function BookingSummaryPage() {
   }
 
   const editSlot = (slot: BookingSlot) => {
+    const otherBookings = bookings.filter(b => b.id !== slot.id)
     const params = new URLSearchParams({
       slots: slot.hours.join(','),
       court: String(slot.court),
       date:  slot.date.toISOString(),
+      cart:  JSON.stringify(otherBookings)
     })
-    router.push(`/schedule/${venue.id}?${params}`)
+    router.push(`/schedule/${venue.id}?${params.toString()}`)
   }
 
   return (
@@ -198,7 +241,7 @@ export default function BookingSummaryPage() {
                           </div>
 
                           {/* Action buttons row */}
-                          <div className="flex gap-3 pt-1"
+                          <div className="flex gap-3 pt-3"
                                style={{ borderTop:'1px solid #1E1E1E' }}>
                             {/* Edit Slot — goes back to schedule with pre-filled state */}
                             <motion.button whileTap={{ scale:0.95 }}
@@ -230,7 +273,10 @@ export default function BookingSummaryPage() {
           {bookings.length > 0 && (
             <motion.button
               whileTap={{ scale:0.98 }}
-              onClick={() => router.push(`/schedule/${venue.id}`)}
+              onClick={() => {
+                const params = new URLSearchParams({ cart: JSON.stringify(bookings) })
+                router.push(`/schedule/${venue.id}?${params.toString()}`)
+              }}
               className="w-full flex items-center justify-center gap-2 font-ui font-semibold text-[16px] tap-highlight"
               style={{ height:54, borderRadius:12,
                 border:'1px dashed #2A2A2A', background:'transparent', color:'#ADAAAA' }}>
@@ -262,7 +308,7 @@ export default function BookingSummaryPage() {
         <div className="fixed z-50"
              style={{ bottom:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))',
                background:'linear-gradient(to top, #020202 55%, transparent 100%)',
-               padding:'20px 16px max(24px,var(--sab,24px))' }}>
+               padding:'20px 16px calc(16px + var(--sab, 0px))' }}>
 
           {/* Summary row */}
           <div className="flex justify-between items-center mb-3 px-1">

@@ -42,6 +42,27 @@ export default function SchedulePage() {
   const editCourt = searchParams.get('court') ? parseInt(searchParams.get('court')!) : null
   const editSlots = searchParams.get('slots') ? searchParams.get('slots')!.split(',').map(Number) : []
 
+  const initialCart = useMemo(() => {
+    const cartParam = searchParams.get('cart')
+    if (!cartParam) return []
+    try {
+      const parsed = JSON.parse(cartParam)
+      return parsed.map((p: any) => ({ ...p, date: new Date(p.date) }))
+    } catch(e) { return [] }
+  }, [searchParams])
+
+  const [localCart, setLocalCart] = useState<any[]>(initialCart)
+  // Sync if navigation happens within same component instance
+  useEffect(() => { setLocalCart(initialCart) }, [initialCart])
+
+  const checkSlotBookedInCart = useCallback((court: number, hour: number, day: Date) => {
+    return localCart.some((b: any) => 
+      b.court === court && 
+      b.date.toDateString() === day.toDateString() &&
+      b.hours.includes(hour)
+    )
+  }, [localCart])
+
   const [selectedDay,   setDay]    = useState<Date>(today)
   const [selectedSport, setSport]  = useState<string>(() => venue?.sports[0] ?? 'padel')
   const [selectedCourt, setCourt]  = useState(editCourt ?? 1)
@@ -55,7 +76,10 @@ export default function SchedulePage() {
   )
 
   const pricePerSlot = parseInt(venue.price.replace(/[^0-9]/g, '')) || 200000
-  const totalAmount  = selectedSlots.length * pricePerSlot
+  
+  // Total active includes both actively selected and localCart items
+  const totalActiveSlots = selectedSlots.length + localCart.reduce((sum, b) => sum + b.hours.length, 0)
+  const totalAmount  = totalActiveSlots * pricePerSlot
   const fmtAmount    = `Rp ${totalAmount.toLocaleString('id-ID')}`
   const monthLabel   = MON_NAMES[selectedDay.getMonth()] + ' ' + selectedDay.getFullYear()
 
@@ -68,17 +92,41 @@ export default function SchedulePage() {
 
   const toggleSlot = (hour: number) => {
     if (slotStatus(selectedCourt, hour) === 'booked') return
+
+    const cartItemIndex = localCart.findIndex((b: any) => b.court === selectedCourt && b.date.toDateString() === selectedDay.toDateString() && b.hours.includes(hour))
+    if (cartItemIndex !== -1) {
+       const b = localCart[cartItemIndex]
+       const newHours = b.hours.filter((h: number) => h !== hour)
+       if (newHours.length > 0) {
+          const newCart = [...localCart]
+          newCart[cartItemIndex] = { ...b, hours: newHours }
+          setLocalCart(newCart)
+       } else {
+          setLocalCart(localCart.filter((_, i) => i !== cartItemIndex))
+       }
+       return
+    }
+
     setSlots(prev => prev.includes(hour) ? prev.filter(h => h !== hour) : [...prev, hour])
   }
 
   const handleConfirm = () => {
-    if (!selectedSlots.length) return
-    const params = new URLSearchParams({
-      slots: selectedSlots.sort((a,b)=>a-b).join(','),
-      court: String(selectedCourt),
-      date:  selectedDay.toISOString(),
-    })
-    router.push(`/booking-summary/${venue.id}?${params}`)
+    const params = new URLSearchParams()
+    
+    if (selectedSlots.length > 0) {
+       params.set('slots', selectedSlots.sort((a,b)=>a-b).join(','))
+       params.set('court', String(selectedCourt))
+       params.set('date', selectedDay.toISOString())
+    }
+    
+    if (localCart.length > 0) {
+       params.set('cart', JSON.stringify(localCart))
+    }
+
+    const editId = searchParams.get('editId')
+    if (editId) params.set('editId', editId)
+
+    router.push(`/booking-summary/${venue.id}?${params.toString()}`)
   }
 
   return (
@@ -90,15 +138,15 @@ export default function SchedulePage() {
              top: 0,
              left:  'max(0px, calc(50% - 215px))',
              right: 'max(0px, calc(50% - 215px))',
-             background: '#020202',
+             background: '#0E0E0E',
            }}>
-        <div className="status-bar-spacer" />
+        <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
         <div className="flex items-center gap-4 px-4 py-4"
              style={{ borderBottom:'1px solid #1E1E1E' }}>
           <motion.button whileTap={{ scale:0.9 }} onClick={() => router.back()}
-            className="flex items-center justify-center flex-none tap-highlight"
-            style={{ width:36, height:36, background:'#20201F', borderRadius:9999 }}>
-            <LuChevronLeft size={18} color="#F3F3F3" strokeWidth={2} />
+            className="flex items-center justify-center flex-none tap-highlight liquid-glass-icon"
+            style={{ width:40, height:40, borderRadius:9999 }}>
+            <LuChevronLeft size={18} color="#F5F5F5" strokeWidth={2} />
           </motion.button>
           <p className="font-heading font-bold text-white uppercase tracking-wide" style={{ fontSize:16 }}>
             Set a Schedule
@@ -214,9 +262,10 @@ export default function SchedulePage() {
               transition={{ duration:0.22 }}
               className="grid grid-cols-2 gap-[15px]">
               {ALL_HOURS.map((hour, i) => {
-                const status     = slotStatus(selectedCourt, hour)
-                const isBooked   = status === 'booked'
-                const isSelected = selectedSlots.includes(hour)
+                const isMockBooked = slotStatus(selectedCourt, hour) === 'booked'
+                const isCartBooked = checkSlotBookedInCart(selectedCourt, hour, selectedDay)
+                const isBooked   = isMockBooked
+                const isSelected = selectedSlots.includes(hour) || isCartBooked
                 return (
                   <motion.button key={hour}
                     initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
@@ -262,13 +311,13 @@ export default function SchedulePage() {
            style={{ bottom:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))',
              background:'linear-gradient(to top, #020202 55%, transparent 100%)',
              padding:'20px 16px max(24px, var(--sab,24px))' }}>
-        {selectedSlots.length > 0 && (
+        {totalActiveSlots > 0 && (
           <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
             className="flex justify-between items-center mb-3 px-1">
             <div>
               <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>Selected Slots</p>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="font-heading font-bold" style={{ fontSize:22 }}>{selectedSlots.length}</span>
+                <span className="font-heading font-bold" style={{ fontSize:22 }}>{totalActiveSlots}</span>
                 <span className="font-ui font-semibold text-[14px]" style={{ color:'#9CFF93' }}>x 60 MIN</span>
               </div>
             </div>
@@ -278,16 +327,16 @@ export default function SchedulePage() {
             </div>
           </motion.div>
         )}
-        <motion.button whileTap={selectedSlots.length > 0 ? { scale:0.97 } : {}}
+        <motion.button whileTap={totalActiveSlots > 0 ? { scale:0.97 } : {}}
           onClick={handleConfirm}
           className="w-full flex items-center justify-center gap-2 font-heading font-bold"
-          style={{ background: selectedSlots.length > 0 ? '#9CFF93' : '#20201F',
-            color: selectedSlots.length > 0 ? '#006413' : '#555',
+          style={{ background: totalActiveSlots > 0 ? '#9CFF93' : '#20201F',
+            color: totalActiveSlots > 0 ? '#006413' : '#555',
             height:64, borderRadius:9999, fontSize:18,
-            cursor: selectedSlots.length > 0 ? 'pointer' : 'not-allowed',
+            cursor: totalActiveSlots > 0 ? 'pointer' : 'not-allowed',
             transition:'background 0.25s, color 0.25s' }}>
           CONFIRM BOOKING
-          {selectedSlots.length > 0 && <LuChevronRight size={20} color="#006413" strokeWidth={2.5} />}
+          {totalActiveSlots > 0 && <LuChevronRight size={20} color="#006413" strokeWidth={2.5} />}
         </motion.button>
       </div>
     </div>
