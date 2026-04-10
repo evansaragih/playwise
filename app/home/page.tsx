@@ -33,7 +33,7 @@ export default function HomePage() {
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><HomeScreenSkeleton /></div>
 
   return (
-    <div className="bg-[#020202] min-h-screen pb-28">
+    <div className="bg-[#020202] min-h-screen pb-28 page-fade-bottom">
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
         {/* ══════════════════════════════════════════

@@ -51,7 +51,7 @@ export default function InsightsPage() {
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><InsightsSkeleton /></div>
 
   return (
-    <div className="bg-[#020202] min-h-screen pb-28">
+    <div className="bg-[#020202] min-h-screen pb-28 page-fade-bottom">
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
         {/* ══ TOP BAR bg:#0E0E0E pt:64 px:16 pb:16 ══ */}
