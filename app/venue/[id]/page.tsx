@@ -83,17 +83,14 @@ export default function VenueDetailPage() {
           transition={{ delay:0.1 }}
           onClick={() => router.back()}
           whileTap={{ scale:0.9 }}
-          className="fixed z-50 flex items-center justify-center tap-highlight"
+          className="fixed z-50 flex items-center justify-center tap-highlight liquid-glass-icon"
           style={{
             top: 'max(16px, calc(var(--sat,0px) + 12px))',
-            left: 16,
+            left: 'max(16px, calc(50% - 199px))',
             width: 40, height: 40,
-            background: 'rgba(0,0,0,0.55)',
             borderRadius: 9999,
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
           }}>
-          <LuChevronLeft size={20} color="#FFFFFF" strokeWidth={2} />
+          <LuChevronLeft size={18} color="#F5F5F5" strokeWidth={2} />
         </motion.button>
 
         {/* ── RATING PILL — bottom-right inside photo ── */}

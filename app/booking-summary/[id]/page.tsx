@@ -147,8 +147,7 @@ export default function BookingSummaryPage() {
            style={{ top:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))',
              background:'#0E0E0E' }}>
         <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
-        <div className="flex items-center gap-4 px-4 py-4"
-             style={{ borderBottom:'1px solid #1E1E1E' }}>
+        <div className="flex items-center gap-4 px-4 py-4">
           <motion.button whileTap={{ scale:0.9 }} onClick={() => router.back()}
             className="flex items-center justify-center flex-none tap-highlight liquid-glass-icon"
             style={{ width:40, height:40, borderRadius:9999 }}>
@@ -164,22 +163,51 @@ export default function BookingSummaryPage() {
 
       {/* ══ SCROLLABLE CONTENT ══ */}
       <motion.div variants={stagger.container} initial="initial" animate="animate"
-        className="px-4 flex flex-col gap-6 pt-2">
+        className="px-4 flex flex-col gap-6 pt-6">
 
-        {/* ── VENUE HEADER CARD ── bg:#20201F r:24 p:16 24 */}
+        {/* ── VENUE HEADER CARD ── */}
         <motion.div variants={stagger.item}
-          className="relative rounded-3xl overflow-hidden p-6 flex flex-col gap-3"
-          style={{ background:'#20201F' }}>
-          {/* Green glow orb */}
-          <div className="absolute -top-8 -right-8 pointer-events-none"
-               style={{ width:128, height:128, background:'rgba(156,255,147,0.10)', borderRadius:9999 }} />
-          <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>Upcoming Session</p>
-          <p className="font-heading font-bold text-white" style={{ fontSize:22 }}>{venue.name}</p>
-          <div className="flex items-center gap-1">
-            <GrLocation size={14} color="#ADAAAA" />
-            <span className="font-ui text-[14px]" style={{ color:'#ADAAAA' }}>
-              {venue.location} • {venue.distance}
-            </span>
+          className="relative flex flex-col items-start overflow-hidden"
+          style={{
+            background: '#20201F',
+            borderRadius: 24,
+            padding: '16px 24px',
+            isolation: 'isolate'
+          }}>
+          
+          {/* Overlay+Blur */}
+          <div className="absolute pointer-events-none"
+               style={{
+                 width: 128, height: 128,
+                 right: -64, top: -64,
+                 background: 'rgba(156, 255, 147, 0.1)',
+                 filter: 'blur(32px)',
+                 borderRadius: 9999,
+                 zIndex: 0
+               }} />
+
+          {/* Container (gap 12px) */}
+          <div className="flex flex-col items-start relative z-10 w-full" style={{ gap: 12 }}>
+            {/* Upcoming Session */}
+            <div className="font-ui font-normal text-[12px] leading-[16px] text-[#ADAAAA]">
+              Upcoming Session
+            </div>
+
+            {/* Title + Location (gap 4px) */}
+            <div className="flex flex-col items-start w-full" style={{ gap: 4 }}>
+              {/* Heading 2 */}
+              <div className="font-heading font-bold text-[22px] leading-[28px] text-white">
+                {venue.name}
+              </div>
+
+              {/* Location Row */}
+              <div className="flex flex-row items-center" style={{ gap: 4 }}>
+                <GrLocation size={16} color="#ADAAAA" />
+                <div className="font-ui font-normal text-[14px] leading-[20px] text-[#ADAAAA]">
+                  {venue.location} • {venue.distance}
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
 

@@ -141,8 +141,7 @@ export default function SchedulePage() {
              background: '#0E0E0E',
            }}>
         <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
-        <div className="flex items-center gap-4 px-4 py-4"
-             style={{ borderBottom:'1px solid #1E1E1E' }}>
+        <div className="flex items-center gap-4 px-4 py-4">
           <motion.button whileTap={{ scale:0.9 }} onClick={() => router.back()}
             className="flex items-center justify-center flex-none tap-highlight liquid-glass-icon"
             style={{ width:40, height:40, borderRadius:9999 }}>

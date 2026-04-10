@@ -250,8 +250,8 @@ export default function DiscoverPage() {
             className="fixed z-[500]"
             style={{
               /* Anchor to mobile frame - works on both mobile device and desktop preview */
-              left: 'max(0px, calc(50% - 196.5px))',
-              right: 'max(0px, calc(50% - 196.5px))',
+              left: 'max(0px, calc(50% - 215px))',
+              right: 'max(0px, calc(50% - 215px))',
               bottom: 0,
               background: 'linear-gradient(to top, #020202 55%, transparent 100%)',
               padding: '28px 16px 24px',
@@ -283,15 +283,17 @@ export default function DiscoverPage() {
             </div>
 
             {/* CTA — bg:#9CFF93 r:9999 h:64 — ONE trailing chevron only */}
-            <motion.button whileTap={{ scale:0.97 }}
-              className="w-full flex items-center justify-center font-heading font-bold gap-2"
-              style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18 }}>
-              CONTINUE
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="#006413" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </motion.button>
+            <Link href={`/venue/${selectedVenue.id}`} className="block w-full">
+              <motion.button whileTap={{ scale:0.97 }}
+                className="w-full flex items-center justify-center font-heading font-bold gap-2"
+                style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18 }}>
+                CONTINUE
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                     stroke="#006413" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </motion.button>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

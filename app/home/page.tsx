@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { Search, MapPin, TrendingUp, ChevronRight, Star } from 'lucide-react'
 import Link from 'next/link'
 import BottomNav from '@/components/layout/BottomNav'
@@ -77,23 +77,7 @@ export default function HomePage() {
         <div className="flex flex-col gap-6 px-4 pt-6">
 
           {/* ── ACTIVITY STREAK bg:#20201F r:16 px:24 py:16 gap:8 ── */}
-          <motion.div variants={stagger.item}
-            className="rounded-2xl px-6 py-4 flex flex-col"
-            style={{ background: '#20201F', gap: 8 }}>
-            <p className="font-heading font-bold text-white text-[18px] leading-none">Activity Streak</p>
-            <div className="flex items-center gap-2">
-              <span className="font-heading font-bold text-[32px] leading-none" style={{ color: '#9CFF93' }}>
-                {mockUser.activityStreak}
-              </span>
-              <span className="font-ui font-semibold text-[12px]" style={{ color: '#ADAAAA' }}>DAYS ACTIVE</span>
-            </div>
-            <div className="flex gap-1.5 mt-1">
-              {mockUser.activityDays.map((active, i) => (
-                <div key={i} className="flex-1 h-2 rounded-full"
-                     style={{ background: active ? '#9CFF93' : '#2A2A2A' }} />
-              ))}
-            </div>
-          </motion.div>
+          <AnimatedStreakCard />
 
           {/* ── PENDING PAYMENT ── */}
           <motion.div variants={stagger.item} className="flex flex-col gap-3">
@@ -341,5 +325,37 @@ function SectionRow({ title, href }: { title: string; href?: string }) {
       <p className="font-heading font-bold text-white text-[18px]">{title}</p>
       {href ? <Link href={href}>{btn}</Link> : btn}
     </div>
+  )
+}
+
+function AnimatedStreakCard() {
+  const count = useMotionValue(0)
+  const rounded = useTransform(count, Math.round)
+
+  useEffect(() => {
+    const controls = animate(count, mockUser.activityStreak, { duration: 1.2, delay: 0.15, ease: 'easeOut' })
+    return controls.stop
+  }, [])
+
+  return (
+    <motion.div variants={stagger.item}
+      className="rounded-2xl px-6 py-4 flex flex-col"
+      style={{ background: '#20201F', gap: 8 }}>
+      <p className="font-heading font-bold text-white text-[18px] leading-none">Activity Streak</p>
+      <div className="flex items-center gap-2">
+        <motion.span className="font-heading font-bold text-[32px] leading-none" style={{ color: '#9CFF93' }}>
+          {rounded}
+        </motion.span>
+        <span className="font-ui font-semibold text-[12px]" style={{ color: '#ADAAAA' }}>DAYS ACTIVE</span>
+      </div>
+      <div className="flex gap-1.5 mt-1">
+        {mockUser.activityDays.map((active, i) => (
+          <motion.div key={i} className="flex-1 h-2 rounded-full"
+               initial={{ background: '#2A2A2A' }}
+               animate={{ background: active ? '#9CFF93' : '#2A2A2A' }}
+               transition={{ duration: 0.35, delay: i * 0.12 + 0.3 }} />
+        ))}
+      </div>
+    </motion.div>
   )
 }
