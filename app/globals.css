@@ -5,31 +5,56 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
-  background: #020202;
-  color: #ffffff;
-  /* Lexend is the default UI font (body copy, labels, chips, nav) */
-  font-family: 'Lexend', sans-serif;
-  -webkit-font-smoothing: antialiased;
+html {
+  /* Prevent font scaling in landscape on iOS */
   -webkit-text-size-adjust: 100%;
-  overscroll-behavior: none;
+  text-size-adjust: 100%;
 }
 
-/* Space Grotesk: headings, titles, big numbers, sport labels, CTA buttons */
-.font-heading { font-family: 'Space Grotesk', sans-serif; }
+html, body {
+  /* Fill full device screen — no scrollbars, no margins */
+  width: 100%;
+  height: 100%;
+  background: #020202;
+  color: #ffffff;
+  font-family: 'Lexend', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  /* Prevent iOS elastic scroll bounce on body */
+  overflow: hidden;
+  position: fixed;
+  /* iOS momentum scrolling handled per-container */
+}
 
-/* Lexend explicitly (for clarity in code) */
-.font-ui { font-family: 'Lexend', sans-serif; }
-
-/* Mobile container */
+/* Root container — fills the entire viewport on every device.
+   On mobile it fills exactly the screen.
+   On desktop/tablet it centres content at max 430px (widest iPhone). */
 .mobile-container {
-  max-width: 393px;
-  min-height: 100svh;
+  width: 100%;
+  max-width: 430px;
+  height: 100svh;
+  height: 100dvh;    /* dynamic viewport height — handles iOS toolbar show/hide */
   margin: 0 auto;
   background: #020202;
   position: relative;
+  overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
+
+/* On real mobile devices (≤ 430px wide) remove the max-width cap
+   so it truly fills edge-to-edge */
+@media screen and (max-width: 430px) {
+  .mobile-container {
+    max-width: 100%;
+    width: 100vw;
+  }
+}
+
+/* Space Grotesk for headings, big numbers, sport labels */
+.font-heading { font-family: 'Space Grotesk', sans-serif; }
+/* Lexend for UI labels, chips, body, nav */
+.font-ui { font-family: 'Lexend', sans-serif; }
 
 /* ── Shimmer skeleton ── */
 .skeleton {
@@ -43,15 +68,7 @@ html, body {
   100% { background-position:  200% 0 }
 }
 
-/* ── Liquid Glass pill — outer nav container ──
-   Figma specs:
-   - bg: #1A1A1A @ 20% opacity
-   - backdrop-blur: radius 51.97 → blur(26px)
-   - border-radius: 433px
-   - inner shadow 1: rgba(242,242,242,0.50) blur 95px (glow)
-   - inner shadow 2: rgba(179,179,179,0.40) x:-9 y:-9 blur:9 spread:-12
-   - inner shadow 3: rgba(179,179,179,1.00) x:9  y:9  blur:4  spread:-12
-*/
+/* ── Liquid Glass pill — outer nav container ── */
 .liquid-glass-nav {
   background: rgba(26, 26, 26, 0.20);
   backdrop-filter: blur(26px);
@@ -63,14 +80,7 @@ html, body {
     inset  9px  9px 4px -12px rgba(179, 179, 179, 1.00);
 }
 
-/* ── Liquid Glass active tab pill ──
-   Figma specs:
-   - bg: #9CFF93
-   - border-radius: 999px
-   - drop-shadow glow: rgba(156,255,147,0.30) blur:20
-   - drop-shadow depth: rgba(0,0,0,0.25)      y:8 blur:10 spread:-2
-   - inner shadow:  rgba(0,255,0,0.10)          blur:4
-*/
+/* ── Liquid Glass active tab pill ── */
 .liquid-glass-active {
   background: #9CFF93;
   border-radius: 999px;
@@ -80,24 +90,7 @@ html, body {
     inset 0 0  4px  0  rgba(0, 255,   0,  0.10);
 }
 
-/* ── Scrollbar hide ── */
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* ── Safe area ── */
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-
-/* ── Tap feedback ── */
-.tap-highlight { -webkit-tap-highlight-color: transparent; }
-
-/* ── Green glow (primary CTA) ── */
-.glow-green { box-shadow: 0 0 20px rgba(156, 255, 147, 0.30); }
-
-/* ── Liquid Glass icon circle (bell, avatar in top bar) ──
-   Matches Figma "Liquid Glass Tab" circle variant:
-   bg: #0E0E0E, r: 498 (full circle), backdrop-blur: 26px
-   same 3 inner shadows as nav pill
-*/
+/* ── Liquid Glass icon circle (bell, avatar) ── */
 .liquid-glass-icon {
   background: rgba(14, 14, 14, 0.85);
   backdrop-filter: blur(26px);
@@ -107,3 +100,20 @@ html, body {
     inset -9px -9px 9px -12px rgba(179, 179, 179, 0.40),
     inset  9px  9px 4px -12px rgba(179, 179, 179, 1.00);
 }
+
+/* ── Scrollbar hide ── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Tap feedback ── */
+.tap-highlight { -webkit-tap-highlight-color: transparent; }
+
+/* ── Green glow ── */
+.glow-green { box-shadow: 0 0 20px rgba(156, 255, 147, 0.30); }
+
+/* ── Safe area insets — iPhone notch/home bar ── */
+.safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ── Prevent text selection during map drag ── */
+.no-select { user-select: none; -webkit-user-select: none; }

@@ -43,7 +43,7 @@ export default function HomePage() {
         ══════════════════════════════════════════ */}
         <motion.div variants={stagger.item}
           className="flex items-center gap-6 px-4 pb-4"
-          style={{ background: '#0E0E0E', paddingTop: 64 }}>
+          style={{ background: '#0E0E0E', paddingTop: 'max(64px, calc(env(safe-area-inset-top) + 20px))' }}>
 
           {/* Search bar — w:233 h:46 bg:#000 r:12 px:16 py:12 gap:12
               Lexend Regular 14px #ADAAAA placeholder
@@ -331,7 +331,7 @@ export default function HomePage() {
         whileTap={{ scale: 0.90 }}
         className="fixed z-40 flex items-center justify-center tap-highlight"
         style={{
-          bottom: 88,
+          bottom: 'max(88px, calc(env(safe-area-inset-bottom) + 76px))',
           right: 16,
           width: 56, height: 56,
           background: '#006413',

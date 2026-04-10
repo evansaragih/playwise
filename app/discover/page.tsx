@@ -75,7 +75,7 @@ export default function DiscoverPage() {
         {/* ══ TOP BAR — shared between both views ══
             bg:#0E0E0E, pt:64, px:16, pb:16, FIXED at top */}
         <motion.div variants={stagger.item} className="px-4 pb-4 flex-none"
-          style={{ background:'#0E0E0E', paddingTop:64 }}>
+          style={{ background:'#0E0E0E', paddingTop: 'max(64px, calc(env(safe-area-inset-top) + 20px))' }}>
 
           {/* Title + icons */}
           <div className="flex items-center justify-between mb-3">
@@ -219,7 +219,7 @@ export default function DiscoverPage() {
           transition={{ delay:0.5, type:'spring', stiffness:280, damping:20 }}
           whileTap={{ scale:0.90 }}
           className="fixed z-40 flex items-center justify-center"
-          style={{ bottom:88, right:16, width:56, height:56, background:'#006413', borderRadius:9999,
+          style={{ bottom:'max(88px, calc(env(safe-area-inset-bottom) + 76px))', right:16, width:56, height:56, background:'#006413', borderRadius:9999,
             boxShadow:'inset 0 0 95px 0 rgba(242,242,242,0.50),inset -9px -9px 9px -12px rgba(179,179,179,0.40),inset 9px 9px 4px -12px rgba(179,179,179,1.00)' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CFF93" strokeWidth="2"
                strokeLinecap="round" strokeLinejoin="round">

@@ -57,7 +57,7 @@ export default function InsightsPage() {
         {/* ══ TOP BAR bg:#0E0E0E pt:64 px:16 pb:16 ══ */}
         <motion.div variants={stagger.item}
           className="px-4 pb-4 flex items-center justify-between"
-          style={{ background:'#0E0E0E', paddingTop:64 }}>
+          style={{ background:'#0E0E0E', paddingTop: 'max(64px, calc(env(safe-area-inset-top) + 20px))' }}>
           <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
                style={{ background:'#000000' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
