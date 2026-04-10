@@ -336,7 +336,7 @@ export default function BookingSummaryPage() {
         <div className="fixed z-50"
              style={{ bottom:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))',
                background:'linear-gradient(to top, #020202 55%, transparent 100%)',
-               padding:'20px 16px 24px' }}>
+               padding:'20px 16px var(--sab, 16px)' }}>
 
           {/* Summary row */}
           <div className="flex justify-between items-center mb-3 px-1">
