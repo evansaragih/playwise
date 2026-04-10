@@ -140,7 +140,7 @@ export default function BookingSummaryPage() {
   }
 
   return (
-    <div className="bg-[#020202]" style={{ paddingBottom:'calc(160px + var(--sab,0px))' }}>
+    <div className="bg-[#020202] min-h-[100svh] relative pb-40">
 
       {/* ══ FIXED TOP BAR ══ */}
       <div className="fixed z-50"
@@ -336,7 +336,7 @@ export default function BookingSummaryPage() {
         <div className="fixed z-50"
              style={{ bottom:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))',
                background:'linear-gradient(to top, #020202 55%, transparent 100%)',
-               padding:'20px 16px var(--sab, 16px)' }}>
+               padding:'20px 16px calc(16px + var(--sab, 0px))' }}>
 
           {/* Summary row */}
           <div className="flex justify-between items-center mb-3 px-1">
