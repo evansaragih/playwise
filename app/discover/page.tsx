@@ -1,20 +1,18 @@
 'use client'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HiStar } from 'react-icons/hi'
 import { GrLocation } from 'react-icons/gr'
-import { LuSearch, LuList, LuMap, LuMinus, LuPlus } from 'react-icons/lu'
-import { BiCurrentLocation } from 'react-icons/bi'
+import { LuSearch, LuList, LuMap } from 'react-icons/lu'
 import dynamic from 'next/dynamic'
 import BottomNav from '@/components/layout/BottomNav'
 import { DiscoverSkeleton } from '@/components/ui/Skeleton'
 
-/* ── Dynamically import Map to avoid SSR issues ── */
-const MapView = dynamic(() => import('@/components/ui/MapView'), { ssr: false, loading: () => (
-  <div className="w-full h-full flex items-center justify-center" style={{ background: '#1A1A1A' }}>
-    <div className="skeleton w-full h-full" />
-  </div>
-)})
+/* ── Lazy-load MapView (no SSR) ── */
+const MapView = dynamic(() => import('@/components/ui/MapView'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full" style={{ background:'#1A1A1A' }} />,
+})
 
 const FILTERS = ['Nearby', 'Favorite', 'Price Low-High', 'Top Rated']
 
@@ -30,12 +28,24 @@ const stagger = {
   item: { initial: { opacity:0, y:24 }, animate: { opacity:1, y:0, transition: { duration:0.4, ease:[0.22,1,0.36,1] } } },
 }
 
+/* ── Height of the top bar (title + search + filters + count row) ── */
+const TOP_BAR_H = 232   // measured: pt:64 + title:28 + mb:12 + search:46 + mb:12 + chips:34 + mb:12 + count:20 + pb:16
+
 export default function DiscoverPage() {
   const [loading, setLoading]     = useState(true)
   const [activeFilter, setFilter] = useState('Nearby')
   const [viewMode, setView]       = useState<'list'|'map'>('list')
   const [search, setSearch]       = useState('')
   const [selected, setSelected]   = useState<string|null>(null)
+  /* screen height for map sizing */
+  const [screenH, setScreenH]     = useState(852)
+
+  useEffect(() => {
+    setScreenH(window.innerHeight)
+    const onResize = () => setScreenH(window.innerHeight)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   useEffect(() => { setTimeout(()=>setLoading(false), 1200) }, [])
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><DiscoverSkeleton /></div>
@@ -45,15 +55,29 @@ export default function DiscoverPage() {
     v.location.toLowerCase().includes(search.toLowerCase())
   )
 
-  return (
-    <div className="bg-[#020202] min-h-screen" style={{ paddingBottom: viewMode === 'list' ? 112 : 0 }}>
-      <motion.div variants={stagger.container} initial="initial" animate="animate">
+  /* Map fills exactly: screen height − top bar.
+     No scroll, the map container itself is fixed height. */
+  const mapH = screenH - TOP_BAR_H
 
-        {/* ══ TOP BAR bg:#0E0E0E pt:64 px:16 pb:16 ══ */}
-        <motion.div variants={stagger.item} className="px-4 pb-4"
+  const selectedVenue = VENUES.find(v => v.id === selected)
+
+  return (
+    /*
+      The outer div uses h-svh + overflow-hidden so the whole page is
+      exactly one screen — nothing can scroll in map view.
+    */
+    <div className="bg-[#020202]"
+      style={{ height: viewMode === 'map' ? '100svh' : 'auto', overflow: viewMode === 'map' ? 'hidden' : 'visible' }}>
+
+      <motion.div variants={stagger.container} initial="initial" animate="animate"
+        style={{ display:'flex', flexDirection:'column' }}>
+
+        {/* ══ TOP BAR — shared between both views ══
+            bg:#0E0E0E, pt:64, px:16, pb:16, FIXED at top */}
+        <motion.div variants={stagger.item} className="px-4 pb-4 flex-none"
           style={{ background:'#0E0E0E', paddingTop:64 }}>
 
-          {/* Title row */}
+          {/* Title + icons */}
           <div className="flex items-center justify-between mb-3">
             <h1 className="font-heading font-bold text-white" style={{ fontSize:22 }}>Discover Courts</h1>
             <div className="flex items-center gap-3">
@@ -66,12 +90,13 @@ export default function DiscoverPage() {
                 <span className="absolute top-[10px] right-[10px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
               </div>
               <div className="liquid-glass-icon overflow-hidden" style={{ width:46, height:46, borderRadius:9999 }}>
-                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80" alt="avatar" className="w-full h-full object-cover" />
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
+                     alt="avatar" className="w-full h-full object-cover" />
               </div>
             </div>
           </div>
 
-          {/* Search — full width in map mode too */}
+          {/* Search */}
           <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 mb-3"
                style={{ background:'#000000' }}>
             <LuSearch size={16} color="#ADAAAA" />
@@ -81,7 +106,7 @@ export default function DiscoverPage() {
               value={search} onChange={e=>setSearch(e.target.value)} />
           </div>
 
-          {/* Filter chips row */}
+          {/* Filters */}
           <div className="flex gap-[7px] overflow-x-auto scrollbar-hide mb-3">
             {FILTERS.map(f => (
               <motion.button key={f} whileTap={{ scale:0.95 }}
@@ -95,15 +120,14 @@ export default function DiscoverPage() {
             ))}
           </div>
 
-          {/* Count + view toggle row */}
+          {/* Count + view toggle */}
           <div className="flex items-center justify-between">
             <span className="font-ui text-[14px]" style={{ color:'#9E9E9E' }}>{filtered.length} venues found</span>
-
-            {/* Toggle — bg rgba(255,255,255,0.10) r:999 p:4 */}
+            {/* Toggle pill — bg rgba(255,255,255,0.10) r:999 p:4 */}
             <div className="flex items-center rounded-full p-1" style={{ background:'rgba(255,255,255,0.10)' }}>
               {(['list','map'] as const).map(m => (
                 <motion.button key={m} whileTap={{ scale:0.92 }}
-                  onClick={()=>setView(m)}
+                  onClick={() => { setView(m); if (m==='list') setSelected(null) }}
                   className="w-8 h-8 flex items-center justify-center rounded-full transition-all"
                   style={viewMode===m ? { background:'rgba(255,255,255,0.15)' } : {}}>
                   {m==='list'
@@ -118,9 +142,10 @@ export default function DiscoverPage() {
         {/* ══ CONTENT ══ */}
         <AnimatePresence mode="wait">
           {viewMode === 'list' ? (
-            /* ── LIST VIEW ── */
+
+            /* ── LIST VIEW: normal scroll ── */
             <motion.div key="list" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
-              className="px-4 pt-4 flex flex-col gap-6">
+              className="px-4 pt-4 flex flex-col gap-6" style={{ paddingBottom:112 }}>
               {filtered.map((v, i) => (
                 <motion.div key={v.id}
                   initial={{ opacity:0, y:32 }} animate={{ opacity:1, y:0 }}
@@ -144,13 +169,16 @@ export default function DiscoverPage() {
                         <span className="font-ui text-[14px]" style={{ color:'#ADAAAA' }}>{v.location} • {v.distance}</span>
                       </div>
                     </div>
-                    <div className="flex justify-between items-end" style={{ borderTop:'1px solid #2A2A2A', paddingTop:12 }}>
+                    <div className="flex justify-between items-end"
+                         style={{ borderTop:'1px solid #2A2A2A', paddingTop:12 }}>
                       <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-                        <span className="font-ui font-semibold text-[12px] uppercase" style={{ color:'#ADAAAA', letterSpacing:'0.08em' }}>Operational Hours</span>
+                        <span className="font-ui font-semibold text-[12px] uppercase"
+                              style={{ color:'#ADAAAA', letterSpacing:'0.08em' }}>Operational Hours</span>
                         <span className="font-ui font-semibold text-[16px] text-white">{v.hours}</span>
                       </div>
                       <div style={{ display:'flex', flexDirection:'column', gap:4, alignItems:'flex-end' }}>
-                        <span className="font-ui font-semibold text-[12px] uppercase" style={{ color:'#ADAAAA', letterSpacing:'0.08em' }}>Starting From</span>
+                        <span className="font-ui font-semibold text-[12px] uppercase"
+                              style={{ color:'#ADAAAA', letterSpacing:'0.08em' }}>Starting From</span>
                         <div className="flex items-baseline gap-0.5">
                           <span className="font-ui font-semibold text-[16px]" style={{ color:'#9CFF93' }}>{v.price}</span>
                           <span className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>/hr</span>
@@ -160,83 +188,110 @@ export default function DiscoverPage() {
                   </div>
                 </motion.div>
               ))}
-              <div className="h-2" />
             </motion.div>
+
           ) : (
-            /* ── MAP VIEW — fullscreen, no bottom nav ── */
+
+            /* ── MAP VIEW: fixed height, no scroll ── */
             <motion.div key="map" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
-              style={{ height:'calc(100svh - 232px)', position:'relative', minHeight:400 }}>
+              style={{ position:'relative', flex: 'none', height: mapH, overflow:'hidden' }}>
+
               <MapView
                 venues={filtered}
                 selected={selected}
                 onSelect={setSelected}
+                containerHeight={mapH}
               />
-              {/* Selected venue bottom sheet */}
-              <AnimatePresence>
-                {selected && (() => {
-                  const v = VENUES.find(x=>x.id===selected)!
-                  return (
-                    <motion.div
-                      initial={{ y:120, opacity:0 }}
-                      animate={{ y:0, opacity:1 }}
-                      exit={{ y:120, opacity:0 }}
-                      transition={{ type:'spring', stiffness:320, damping:32 }}
-                      className="absolute left-4 right-4 z-[1000]"
-                      style={{ bottom:16 }}>
-                      {/* Bottom card — bg:#20201F r:16 p:16 gap:16 */}
-                      <div className="flex items-center gap-4 rounded-2xl mb-3"
-                           style={{ background:'#20201F', padding:16, gap:16 }}>
-                        <div className="flex-none overflow-hidden" style={{ width:70, height:70, background:'#262626', borderRadius:13 }}>
-                          <img src={v.image} alt={v.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-                          {/* SELECTED VENUE chip: bg rgba(156,255,147,0.20) r:4 px:8 py:2 */}
-                          <span className="font-ui font-semibold text-[12px] self-start px-2 py-[2px] rounded-[4px]"
-                                style={{ background:'rgba(156,255,147,0.20)', color:'#9CFF93' }}>
-                            SELECTED VENUE
-                          </span>
-                          {/* Venue name: Space Grotesk Bold 18px */}
-                          <p className="font-heading font-bold text-white" style={{ fontSize:18 }}>{v.name}</p>
-                          {/* Location: Lexend Regular 12px #ADAAAA */}
-                          <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>{v.location} • {v.distance}</p>
-                        </div>
-                      </div>
 
-                      {/* CTA: bg:#9CFF93 r:9999 h:64 — ONE trailing chevron only */}
-                      <motion.button whileTap={{ scale:0.97 }}
-                        className="w-full flex items-center justify-center font-heading font-bold"
-                        style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18, gap:8 }}>
-                        CONTINUE
-                        {/* Single trailing chevron — li:chevron-right */}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#006413" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                      </motion.button>
-                    </motion.div>
-                  )
-                })()}
-              </AnimatePresence>
+              {/* map only — bottom sheet is outside via portal below */}
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Nav only in list view */}
+      {/* ── Bottom nav ONLY in list view ── */}
       {viewMode === 'list' && <BottomNav />}
 
-      {/* FAB — only in list view */}
+      {/* ── FAB ONLY in list view ── */}
       {viewMode === 'list' && (
-        <motion.button initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }}
+        <motion.button
+          initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }}
           transition={{ delay:0.5, type:'spring', stiffness:280, damping:20 }}
           whileTap={{ scale:0.90 }}
           className="fixed z-40 flex items-center justify-center"
           style={{ bottom:88, right:16, width:56, height:56, background:'#006413', borderRadius:9999,
             boxShadow:'inset 0 0 95px 0 rgba(242,242,242,0.50),inset -9px -9px 9px -12px rgba(179,179,179,0.40),inset 9px 9px 4px -12px rgba(179,179,179,1.00)' }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CFF93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CFF93" strokeWidth="2"
+               strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </motion.button>
       )}
+
+      {/* ══════════════════════════════════════════════════════
+          FIXED BOTTOM SHEET — MAP VIEW ONLY
+          position:fixed so it always sits at the bottom of
+          the viewport regardless of map scroll/zoom.
+          pb:24 matches the nav bar bottom padding on list view.
+      ══════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {viewMode === 'map' && selected && selectedVenue && (
+          <motion.div
+            initial={{ y:200, opacity:0 }}
+            animate={{ y:0, opacity:1 }}
+            exit={{ y:200, opacity:0 }}
+            transition={{ type:'spring', stiffness:340, damping:34 }}
+            style={{
+              position:'fixed',
+              bottom:0,
+              left:'50%',
+              transform:'translateX(-50%)',
+              width:'100%',
+              maxWidth:393,
+              zIndex:500,
+              /* gradient fade so map peeks through at top */
+              background:'linear-gradient(to top, #020202 60%, transparent 100%)',
+              padding:'32px 16px 24px',
+            }}>
+
+            {/* Venue card — bg:#20201F r:16 p:16 gap:16 */}
+            <div className="flex items-center rounded-2xl mb-3"
+                 style={{ background:'#20201F', padding:16, gap:16 }}>
+              <div className="flex-none overflow-hidden"
+                   style={{ width:70, height:70, background:'#262626', borderRadius:13 }}>
+                <img src={selectedVenue.image} alt={selectedVenue.name}
+                     className="w-full h-full object-cover" />
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                {/* SELECTED VENUE chip — rgba(156,255,147,0.20) r:4 */}
+                <span className="font-ui font-semibold text-[12px] self-start px-2 py-[2px] rounded-[4px]"
+                      style={{ background:'rgba(156,255,147,0.20)', color:'#9CFF93' }}>
+                  SELECTED VENUE
+                </span>
+                {/* Venue name — Space Grotesk Bold 18px */}
+                <p className="font-heading font-bold text-white" style={{ fontSize:18 }}>
+                  {selectedVenue.name}
+                </p>
+                {/* Location — Lexend Regular 12px #ADAAAA */}
+                <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>
+                  {selectedVenue.location} • {selectedVenue.distance}
+                </p>
+              </div>
+            </div>
+
+            {/* CTA — bg:#9CFF93 r:9999 h:64 — ONE trailing chevron only */}
+            <motion.button whileTap={{ scale:0.97 }}
+              className="w-full flex items-center justify-center font-heading font-bold gap-2"
+              style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18 }}>
+              CONTINUE
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                   stroke="#006413" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
