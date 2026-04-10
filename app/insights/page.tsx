@@ -51,28 +51,29 @@ export default function InsightsPage() {
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><InsightsSkeleton /></div>
 
   return (
-    <div className="bg-[#020202] min-h-screen pb-28 page-fade-bottom">
+    <div className="bg-[#020202] min-h-screen page-fade-bottom" style={{ paddingBottom: "calc(88px + var(--sab, 0px))" }}>
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
-        {/* ══ TOP BAR bg:#0E0E0E pt:64 px:16 pb:16 ══ */}
-        <motion.div variants={stagger.item}
-          className="px-4 pb-4 flex items-center justify-between"
-          style={{ background:'#0E0E0E', paddingTop: 'max(64px, calc(env(safe-area-inset-top) + 20px))' }}>
-          <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
-               style={{ background:'#000000' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <span className="font-ui text-[14px]" style={{ color:'#ADAAAA' }}>Find your next arena...</span>
-          </div>
-          <div className="flex items-center gap-3 ml-3">
-            <div className="liquid-glass-icon flex items-center justify-center relative"
-                 style={{ width:46, height:46, borderRadius:9999 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3F3F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                <path d="M2 8c0-2.2.7-4.3 2-6"/><path d="M22 8a10 10 0 0 0-2-6"/>
+        {/* ══ TOP BAR ══ */}
+        <motion.div variants={stagger.item} style={{ background:'#0E0E0E' }}>
+          <div className="status-bar-spacer" />
+          <div className="px-4 pb-4 pt-4 flex items-center justify-between">
+            <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
+                 style={{ background:'#000000' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <span className="absolute top-[10px] right-[10px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
+              <span className="font-ui text-[14px]" style={{ color:'#ADAAAA' }}>Find your next arena...</span>
+            </div>
+            <div className="flex items-center gap-3 ml-3">
+              <div className="liquid-glass-icon flex items-center justify-center relative"
+                   style={{ width:46, height:46, borderRadius:9999 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3F3F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  <path d="M2 8c0-2.2.7-4.3 2-6"/><path d="M22 8a10 10 0 0 0-2-6"/>
+                </svg>
+                <span className="absolute top-[10px] right-[10px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
+              </div>
             </div>
           </div>
         </motion.div>

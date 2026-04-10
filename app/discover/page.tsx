@@ -75,7 +75,9 @@ export default function DiscoverPage() {
         {/* ══ TOP BAR — shared between both views ══
             bg:#0E0E0E, pt:64, px:16, pb:16, FIXED at top */}
         <motion.div variants={stagger.item} className="px-4 pb-4 flex-none"
-          style={{ background:'#0E0E0E', paddingTop: 'max(64px, calc(env(safe-area-inset-top) + 20px))' }}>
+          style={{ background:'#0E0E0E' }}>
+          <div className="status-bar-spacer" />
+          <div className="px-0 pt-4">
 
           {/* Title + icons */}
           <div className="flex items-center justify-between mb-3">
@@ -137,6 +139,7 @@ export default function DiscoverPage() {
               ))}
             </div>
           </div>
+          </div>{/* /pt-4 */}
         </motion.div>
 
         {/* ══ CONTENT ══ */}

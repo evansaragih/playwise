@@ -6,7 +6,6 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  /* Prevent font scaling in landscape on iOS */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -21,49 +20,51 @@ html, body {
   overscroll-behavior: none;
 }
 
-/* Root container — fills the entire viewport on every device.
-   On mobile it fills exactly the screen.
-   On desktop/tablet it centres content at max 430px (widest iPhone). */
+/* ── Mobile container ──
+   Full width on real phones, centred preview on desktop. */
 .mobile-container {
   width: 100%;
   max-width: 430px;
-  height: 100svh;
-  height: 100dvh;    /* dynamic viewport height — handles iOS toolbar show/hide */
+  min-height: 100svh;
   margin: 0 auto;
   background: #020202;
   position: relative;
-  overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* On real mobile devices (≤ 430px wide) remove the max-width cap
-   so it truly fills edge-to-edge */
-@media screen and (max-width: 430px) {
+@media (max-width: 430px) {
   .mobile-container {
     max-width: 100%;
     width: 100vw;
   }
 }
 
-/* Page content fades out toward the bottom nav so the pill floats cleanly.
-   Add this class to the scrollable page wrapper div. */
-.page-fade-bottom::after {
-  content: '';
-  position: fixed;
-  bottom: 0;
-  left: max(0px, calc(50% - 215px));
-  right: max(0px, calc(50% - 215px));
-  height: 100px;
-  background: linear-gradient(to top, #020202 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 40;  /* below nav (z-50) but above content */
+/* ── Font helpers ── */
+.font-heading { font-family: 'Space Grotesk', sans-serif; }
+.font-ui      { font-family: 'Lexend', sans-serif; }
+
+/* ── Safe area custom properties ──
+   Available in every component via var(--sat) / var(--sab).
+   On iPhone X+ in PWA mode --sat = 44–59px, --sab = 21–34px.
+   On Android / regular browser both = 0px. */
+:root {
+  --sat: env(safe-area-inset-top,    0px);
+  --sal: env(safe-area-inset-left,   0px);
+  --sar: env(safe-area-inset-right,  0px);
+  --sab: env(safe-area-inset-bottom, 0px);
 }
 
-/* Space Grotesk for headings, big numbers, sport labels */
-.font-heading { font-family: 'Space Grotesk', sans-serif; }
-/* Lexend for UI labels, chips, body, nav */
-.font-ui { font-family: 'Lexend', sans-serif; }
+/* ── Status-bar spacer ──
+   Height = exact iOS status bar height (var(--sat)).
+   Background matches the top bar so nothing shows behind the clock/icons. */
+.status-bar-spacer {
+  height: var(--sat);
+  min-height: 0;
+  background: #0E0E0E;
+  width: 100%;
+  flex-shrink: 0;
+  display: block;
+}
 
 /* ── Shimmer skeleton ── */
 .skeleton {
@@ -77,7 +78,7 @@ html, body {
   100% { background-position:  200% 0 }
 }
 
-/* ── Liquid Glass pill — outer nav container ── */
+/* ── Liquid Glass nav pill ── */
 .liquid-glass-nav {
   background: rgba(26, 26, 26, 0.20);
   backdrop-filter: blur(26px);
@@ -89,7 +90,7 @@ html, body {
     inset  9px  9px 4px -12px rgba(179, 179, 179, 1.00);
 }
 
-/* ── Liquid Glass active tab pill ── */
+/* ── Liquid Glass active tab ── */
 .liquid-glass-active {
   background: #9CFF93;
   border-radius: 999px;
@@ -99,7 +100,7 @@ html, body {
     inset 0 0  4px  0  rgba(0, 255,   0,  0.10);
 }
 
-/* ── Liquid Glass icon circle (bell, avatar) ── */
+/* ── Liquid Glass icon circle ── */
 .liquid-glass-icon {
   background: rgba(14, 14, 14, 0.85);
   backdrop-filter: blur(26px);
@@ -114,15 +115,21 @@ html, body {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Tap feedback ── */
-.tap-highlight { -webkit-tap-highlight-color: transparent; }
+/* ── Misc helpers ── */
+.tap-highlight  { -webkit-tap-highlight-color: transparent; }
+.glow-green     { box-shadow: 0 0 20px rgba(156, 255, 147, 0.30); }
+.no-select      { user-select: none; -webkit-user-select: none; }
 
-/* ── Green glow ── */
-.glow-green { box-shadow: 0 0 20px rgba(156, 255, 147, 0.30); }
-
-/* ── Safe area insets — iPhone notch/home bar ── */
-.safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-
-/* ── Prevent text selection during map drag ── */
-.no-select { user-select: none; -webkit-user-select: none; }
+/* ── Page fade at bottom (content fades into nav) ── */
+.page-fade-bottom::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left:  max(0px, calc(50% - 215px));
+  right: max(0px, calc(50% - 215px));
+  /* height = nav pill (80px) + safe area bottom */
+  height: calc(80px + var(--sab));
+  background: linear-gradient(to top, #020202 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 40;
+}

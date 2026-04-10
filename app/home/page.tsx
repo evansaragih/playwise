@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Search, MapPin, TrendingUp, ChevronRight, Star } from 'lucide-react'
 import Link from 'next/link'
 import BottomNav from '@/components/layout/BottomNav'
+import TopBar from '@/components/layout/TopBar'
 import PendingPaymentCard from '@/components/ui/PendingPaymentCard'
 import { HomeScreenSkeleton } from '@/components/ui/Skeleton'
 import {
@@ -33,63 +34,42 @@ export default function HomePage() {
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><HomeScreenSkeleton /></div>
 
   return (
-    <div className="bg-[#020202] min-h-screen pb-28 page-fade-bottom">
+    <div className="bg-[#020202] min-h-screen page-fade-bottom" style={{ paddingBottom: "calc(88px + var(--sab, 0px))" }}>
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
-        {/* ══════════════════════════════════════════
-            TOP BAR
-            Frame 16: w393 h126, bg:#0E0E0E, pt:64 px:16 pb:16 gap:24
-            Children: Input (233×46) + Frame15 (bell+avatar, gap:12)
-        ══════════════════════════════════════════ */}
-        <motion.div variants={stagger.item}
-          className="flex items-center gap-6 px-4 pb-4"
-          style={{ background: '#0E0E0E', paddingTop: 'max(64px, calc(env(safe-area-inset-top) + 20px))' }}>
-
-          {/* Search bar — w:233 h:46 bg:#000 r:12 px:16 py:12 gap:12
-              Lexend Regular 14px #ADAAAA placeholder
-              Make it flex-1 so it stretches */}
-          <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
-               style={{ background: '#000000' }}>
-            <Search size={16} color="#ADAAAA" strokeWidth={1.5} />
-            <input
-              type="text"
-              placeholder="Find your next arena..."
-              className="flex-1 bg-transparent outline-none font-ui text-[14px] text-white"
-              style={{ caretColor: '#9CFF93' }}
-            />
-          </div>
-
-          {/* Right icons — Frame15: gap:12 */}
-          <div className="flex items-center gap-3 flex-none">
-            {/* Bell — Liquid Glass circle 46×46
-                bg:#0E0E0E, r:498 (full circle), backdrop-blur:26px
-                3 inner shadows same as nav outer pill */}
-            <div className="liquid-glass-icon relative flex items-center justify-center"
-                 style={{ width: 46, height: 46, borderRadius: 9999 }}>
-              {/* BellRing icon — using SVG inline to match li:bell-ring Figma icon exactly */}
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3F3F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                <path d="M2 8c0-2.2.7-4.3 2-6"/>
-                <path d="M22 8a10 10 0 0 0-2-6"/>
-              </svg>
-              {/* notification dot */}
-              <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
+        {/* ══ TOP BAR ══ */}
+        <motion.div variants={stagger.item} style={{ background: '#0E0E0E' }}>
+          {/* Fills iOS status bar height exactly */}
+          <div className="status-bar-spacer" />
+          {/* Content below status bar */}
+          <div className="flex items-center gap-6 px-4 pt-4 pb-4">
+            {/* Search bar */}
+            <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
+                 style={{ background: '#000000' }}>
+              <Search size={16} color="#ADAAAA" strokeWidth={1.5} />
+              <input type="text" placeholder="Find your next arena..."
+                className="flex-1 bg-transparent outline-none font-ui text-[14px] text-white"
+                style={{ caretColor: '#9CFF93' }} />
             </div>
-
-            {/* Avatar — Liquid Glass circle 46×46
-                same glass effect, user photo inside */}
-            <Link href="/profile">
-              <div className="liquid-glass-icon flex items-center justify-center overflow-hidden"
-                   style={{ width: 46, height: 46, borderRadius: 9999 }}>
-                <img
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
-                  alt="avatar"
-                  className="w-full h-full object-cover"
-                  style={{ borderRadius: 9999 }}
-                />
+            {/* Right icons */}
+            <div className="flex items-center gap-3 flex-none">
+              <div className="liquid-glass-icon relative flex items-center justify-center"
+                   style={{ width:46, height:46, borderRadius:9999 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3F3F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  <path d="M2 8c0-2.2.7-4.3 2-6"/><path d="M22 8a10 10 0 0 0-2-6"/>
+                </svg>
+                <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
               </div>
-            </Link>
+              <Link href="/profile">
+                <div className="liquid-glass-icon flex items-center justify-center overflow-hidden"
+                     style={{ width:46, height:46, borderRadius:9999 }}>
+                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
+                       alt="avatar" className="w-full h-full object-cover" style={{ borderRadius:9999 }} />
+                </div>
+              </Link>
+            </div>
           </div>
         </motion.div>
 
