@@ -75,51 +75,27 @@ export const mockNearbyVenues = [
 ]
 
 export const mockVenues = [
-  {
-    id: '1',
-    name: 'SportHub Arena',
-    location: 'Central Jakarta',
-    distance: '1.2km',
-    rating: 4.9,
-    hours: '08:00 - 23:00',
-    priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=85&fit=crop',
-    sports: ['padel', 'tennis'],
-  },
-  {
-    id: '2',
-    name: 'Metro Sports Center',
-    location: 'South Jakarta',
-    distance: '2.8km',
-    rating: 4.9,
-    hours: '08:00 - 23:00',
-    priceFrom: 'Rp 340,000',
-    image: 'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=600&q=85&fit=crop',
-    sports: ['futsal', 'badminton'],
-  },
-  {
-    id: '3',
-    name: 'The Padel Club',
-    location: 'Kuningan',
-    distance: '0.8km',
-    rating: 4.9,
-    hours: '08:00 - 23:00',
-    priceFrom: 'Rp 250,000',
-    image: 'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop',
-    sports: ['padel'],
-  },
-  {
-    id: '4',
-    name: 'Elite Tennis Court',
-    location: 'Menteng',
-    distance: '3.1km',
-    rating: 4.7,
-    hours: '07:00 - 22:00',
-    priceFrom: 'Rp 180,000',
-    image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&q=85&fit=crop',
-    sports: ['tennis'],
-  },
+  // Jakarta Pusat
+  { id:'1',  name:'SportHub Arena',       location:'Central Jakarta',  area:'Jakarta Pusat',   distance:'1.2km', rating:4.9, hours:'08:00 - 23:00', price:'Rp 400,000', sports:['padel','tennis'],     courts:4, lat:-6.1754, lng:106.8272, image:'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop',  policy:'Bookings for Court 1 include complimentary water and ball rental. Please arrive 10 minutes before your slot.' },
+  { id:'2',  name:'Metro Sports Center',  location:'South Jakarta',    area:'Jakarta Selatan', distance:'2.8km', rating:4.9, hours:'08:00 - 23:00', price:'Rp 340,000', sports:['futsal','badminton'],  courts:3, lat:-6.2615, lng:106.8106, image:'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=720&q=85&fit=crop',  policy:'Court shoes required. Lockers available at Rp 10,000/session.' },
+  { id:'3',  name:'The Padel Club',       location:'Kuningan',         area:'Jakarta Selatan', distance:'0.8km', rating:4.9, hours:'08:00 - 23:00', price:'Rp 250,000', sports:['padel'],               courts:4, lat:-6.2297, lng:106.8310, image:'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=720&q=85&fit=crop',  policy:'Padel rackets available for rent at Rp 30,000/session.' },
+  { id:'4',  name:'Elite Tennis Court',   location:'Menteng',          area:'Jakarta Pusat',   distance:'3.1km', rating:4.7, hours:'07:00 - 22:00', price:'Rp 180,000', sports:['tennis'],              courts:2, lat:-6.1964, lng:106.8317, image:'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=720&q=85&fit=crop',  policy:'Tennis balls provided. Professional coaching available on request.' },
+  // Jakarta Utara
+  { id:'5',  name:'Ancol Sports Park',    location:'Ancol, North Jakarta', area:'Jakarta Utara',   distance:'5.2km', rating:4.6, hours:'07:00 - 22:00', price:'Rp 200,000', sports:['tennis','futsal'],  courts:3, lat:-6.1276, lng:106.8345, image:'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=720&q=85&fit=crop',  policy:'Seaside venue. Bring sunscreen for daytime sessions.' },
+  { id:'6',  name:'Pluit Sports Center',  location:'Pluit, North Jakarta', area:'Jakarta Utara',   distance:'6.1km', rating:4.5, hours:'08:00 - 21:00', price:'Rp 175,000', sports:['badminton','futsal'], courts:4, lat:-6.1189, lng:106.7978, image:'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop', policy:'Group bookings (6+) receive 15% discount.' },
+  { id:'7',  name:'Marina Bay Court',     location:'Penjaringan, North Jakarta', area:'Jakarta Utara', distance:'7.0km', rating:4.7, hours:'06:00 - 22:00', price:'Rp 220,000', sports:['padel','tennis'], courts:2, lat:-6.1358, lng:106.8074, image:'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=720&q=85&fit=crop', policy:'Premium waterfront courts. Valet parking available.' },
+  // Jakarta Selatan
+  { id:'8',  name:'Senayan Sports Hall',  location:'Senayan, South Jakarta', area:'Jakarta Selatan', distance:'3.5km', rating:4.8, hours:'07:00 - 23:00', price:'Rp 300,000', sports:['badminton','padel'], courts:5, lat:-6.2181, lng:106.8027, image:'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=720&q=85&fit=crop', policy:'Olympic-grade facilities. Court reservation required 2 hours in advance.' },
+  { id:'9',  name:'Kemang Tennis Club',   location:'Kemang, South Jakarta',  area:'Jakarta Selatan', distance:'4.2km', rating:4.6, hours:'08:00 - 21:00', price:'Rp 165,000', sports:['tennis'],           courts:3, lat:-6.2605, lng:106.8131, image:'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=720&q=85&fit=crop', policy:'Members get priority booking. Non-members welcome.' },
+  { id:'10', name:'Pondok Indah Arena',   location:'Pondok Indah, South Jakarta', area:'Jakarta Selatan', distance:'6.8km', rating:4.9, hours:'06:00 - 23:00', price:'Rp 450,000', sports:['padel','tennis','futsal'], courts:6, lat:-6.2849, lng:106.7883, image:'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=720&q=85&fit=crop', policy:'Premium club. Towel service and showers included.' },
+  // Jakarta Timur
+  { id:'11', name:'Cibubur Sports Center',location:'Cibubur, East Jakarta', area:'Jakarta Timur',  distance:'8.5km', rating:4.5, hours:'08:00 - 21:00', price:'Rp 150,000', sports:['futsal','badminton'], courts:4, lat:-6.3607, lng:106.8963, image:'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop', policy:'Family-friendly facility. Kids under 12 play free with paying adult.' },
+  { id:'12', name:'Pulo Gadung Court',    location:'Pulo Gadung, East Jakarta', area:'Jakarta Timur', distance:'7.2km', rating:4.4, hours:'07:00 - 22:00', price:'Rp 130,000', sports:['badminton','tennis'], courts:3, lat:-6.1883, lng:106.8919, image:'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=720&q=85&fit=crop', policy:'Budget-friendly. Equipment rental available at low cost.' },
+  // Jakarta Barat
+  { id:'13', name:'Taman Anggrek Sports', location:'Taman Anggrek, West Jakarta', area:'Jakarta Barat', distance:'5.6km', rating:4.7, hours:'08:00 - 22:00', price:'Rp 280,000', sports:['padel','futsal'],   courts:3, lat:-6.1797, lng:106.7901, image:'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=720&q=85&fit=crop', policy:'Located in a premium mall complex. Parking validated for 3 hours.' },
+  { id:'14', name:'Grogol Arena',         location:'Grogol, West Jakarta',      area:'Jakarta Barat', distance:'6.3km', rating:4.5, hours:'07:00 - 21:00', price:'Rp 160,000', sports:['tennis','badminton'], courts:2, lat:-6.1666, lng:106.7936, image:'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=720&q=85&fit=crop', policy:'Public venue. Walk-ins welcome subject to availability.' },
 ]
+
 
 export const mockGames = {
   upcoming: [

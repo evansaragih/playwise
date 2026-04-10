@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { HiStar } from 'react-icons/hi'
 import { GrLocation } from 'react-icons/gr'
 import { LuSearch, LuList, LuMap } from 'react-icons/lu'
+import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import BottomNav from '@/components/layout/BottomNav'
 import { DiscoverSkeleton } from '@/components/ui/Skeleton'
@@ -150,7 +151,8 @@ export default function DiscoverPage() {
             <motion.div key="list" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
               className="px-4 pt-4 flex flex-col gap-6" style={{ paddingBottom:112 }}>
               {filtered.map((v, i) => (
-                <motion.div key={v.id}
+                <Link key={v.id} href={`/venue/${v.id}`} className="block">
+                <motion.div
                   initial={{ opacity:0, y:32 }} animate={{ opacity:1, y:0 }}
                   transition={{ delay:i*0.07, duration:0.42, ease:[0.22,1,0.36,1] }}
                   whileTap={{ scale:0.985 }}
@@ -190,6 +192,7 @@ export default function DiscoverPage() {
                     </div>
                   </div>
                 </motion.div>
+                </Link>
               ))}
             </motion.div>
 
