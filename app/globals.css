@@ -92,3 +92,18 @@ html, body {
 
 /* ── Green glow (primary CTA) ── */
 .glow-green { box-shadow: 0 0 20px rgba(156, 255, 147, 0.30); }
+
+/* ── Liquid Glass icon circle (bell, avatar in top bar) ──
+   Matches Figma "Liquid Glass Tab" circle variant:
+   bg: #0E0E0E, r: 498 (full circle), backdrop-blur: 26px
+   same 3 inner shadows as nav pill
+*/
+.liquid-glass-icon {
+  background: rgba(14, 14, 14, 0.85);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  box-shadow:
+    inset 0    0   95px  0   rgba(242, 242, 242, 0.50),
+    inset -9px -9px 9px -12px rgba(179, 179, 179, 0.40),
+    inset  9px  9px 4px -12px rgba(179, 179, 179, 1.00);
+}

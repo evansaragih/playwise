@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, BellRing, MapPin, ChevronRight, Star, TrendingUp } from 'lucide-react'
+import { Search, MapPin, TrendingUp, ChevronRight, Star } from 'lucide-react'
 import Link from 'next/link'
 import BottomNav from '@/components/layout/BottomNav'
 import PendingPaymentCard from '@/components/ui/PendingPaymentCard'
@@ -28,55 +28,84 @@ const SPORTS = [
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
-
-  // Demo: booking expires 19 min 54 sec from mount — matches Figma payment screen copy
   const [expiresAt] = useState(() => new Date(Date.now() + 19 * 60 * 1000 + 54 * 1000))
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1400)
-    return () => clearTimeout(t)
-  }, [])
-
+  useEffect(() => { const t = setTimeout(() => setLoading(false), 1400); return () => clearTimeout(t) }, [])
   if (loading) return <div className="min-h-screen bg-[#020202] pb-24"><HomeScreenSkeleton /></div>
 
   return (
     <div className="bg-[#020202] min-h-screen pb-28">
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
-        {/* ══ TOP BAR bg:#0E0E0E ══ */}
+        {/* ══════════════════════════════════════════
+            TOP BAR
+            Frame 16: w393 h126, bg:#0E0E0E, pt:64 px:16 pb:16 gap:24
+            Children: Input (233×46) + Frame15 (bell+avatar, gap:12)
+        ══════════════════════════════════════════ */}
         <motion.div variants={stagger.item}
-          className="flex items-center gap-3 px-4 pb-4"
-          style={{ background: '#0E0E0E', paddingTop: 52 }}>
+          className="flex items-center gap-6 px-4 pb-4"
+          style={{ background: '#0E0E0E', paddingTop: 64 }}>
+
+          {/* Search bar — w:233 h:46 bg:#000 r:12 px:16 py:12 gap:12
+              Lexend Regular 14px #ADAAAA placeholder
+              Make it flex-1 so it stretches */}
           <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
                style={{ background: '#000000' }}>
             <Search size={16} color="#ADAAAA" strokeWidth={1.5} />
-            <span className="text-[14px] text-[#ADAAAA] font-normal font-ui">Find your next arena...</span>
+            <input
+              type="text"
+              placeholder="Find your next arena..."
+              className="flex-1 bg-transparent outline-none font-ui text-[14px] text-white"
+              style={{ caretColor: '#9CFF93' }}
+            />
           </div>
-          <div className="w-[46px] h-[46px] rounded-full flex items-center justify-center relative flex-none"
-               style={{ background: '#0E0E0E', border: '1px solid #1E1E1E' }}>
-            <BellRing size={20} color="#F3F3F3" strokeWidth={1.5} />
-            <span className="absolute top-[10px] right-[10px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
-          </div>
-          <Link href="/profile" className="flex-none">
-            <div className="w-[46px] h-[46px] rounded-full overflow-hidden" style={{ background: '#1E1E1E' }}>
-              <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80"
-                   alt="avatar" className="w-full h-full object-cover" />
+
+          {/* Right icons — Frame15: gap:12 */}
+          <div className="flex items-center gap-3 flex-none">
+            {/* Bell — Liquid Glass circle 46×46
+                bg:#0E0E0E, r:498 (full circle), backdrop-blur:26px
+                3 inner shadows same as nav outer pill */}
+            <div className="liquid-glass-icon relative flex items-center justify-center"
+                 style={{ width: 46, height: 46, borderRadius: 9999 }}>
+              {/* BellRing icon — using SVG inline to match li:bell-ring Figma icon exactly */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3F3F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <path d="M2 8c0-2.2.7-4.3 2-6"/>
+                <path d="M22 8a10 10 0 0 0-2-6"/>
+              </svg>
+              {/* notification dot */}
+              <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
             </div>
-          </Link>
+
+            {/* Avatar — Liquid Glass circle 46×46
+                same glass effect, user photo inside */}
+            <Link href="/profile">
+              <div className="liquid-glass-icon flex items-center justify-center overflow-hidden"
+                   style={{ width: 46, height: 46, borderRadius: 9999 }}>
+                <img
+                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                  style={{ borderRadius: 9999 }}
+                />
+              </div>
+            </Link>
+          </div>
         </motion.div>
 
+        {/* ══ SCROLL BODY px-4 gap-6 ══ */}
         <div className="flex flex-col gap-6 px-4 pt-6">
 
-          {/* ── ACTIVITY STREAK ── */}
+          {/* ── ACTIVITY STREAK bg:#20201F r:16 px:24 py:16 gap:8 ── */}
           <motion.div variants={stagger.item}
             className="rounded-2xl px-6 py-4 flex flex-col"
             style={{ background: '#20201F', gap: 8 }}>
-            <p className="text-[18px] font-bold text-white leading-none font-heading">Activity Streak</p>
+            <p className="font-heading font-bold text-white text-[18px] leading-none">Activity Streak</p>
             <div className="flex items-center gap-2">
-              <span className="text-[32px] font-bold leading-none font-heading" style={{ color: '#9CFF93' }}>
+              <span className="font-heading font-bold text-[32px] leading-none" style={{ color: '#9CFF93' }}>
                 {mockUser.activityStreak}
               </span>
-              <span className="text-[12px] font-semibold text-[#ADAAAA] font-ui">DAYS ACTIVE</span>
+              <span className="font-ui font-semibold text-[12px]" style={{ color: '#ADAAAA' }}>DAYS ACTIVE</span>
             </div>
             <div className="flex gap-1.5 mt-1">
               {mockUser.activityDays.map((active, i) => (
@@ -90,14 +119,9 @@ export default function HomePage() {
           <motion.div variants={stagger.item} className="flex flex-col gap-3">
             <SectionRow title="Pending Payment" />
             {mockPendingPayments.map(p => (
-              <PendingPaymentCard
-                key={p.id}
-                court={p.court}
-                venue={p.venue}
-                schedule={p.schedule}
-                expiresAt={expiresAt}
-                onPayNow={() => console.log('pay now', p.id)}
-              />
+              <PendingPaymentCard key={p.id}
+                court={p.court} venue={p.venue} schedule={p.schedule}
+                expiresAt={expiresAt} />
             ))}
           </motion.div>
 
@@ -105,84 +129,126 @@ export default function HomePage() {
           <motion.div variants={stagger.item} className="flex flex-col" style={{ gap: 16 }}>
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[18px] font-bold text-white font-heading">Quick Book</p>
-                <p className="text-[14px] text-[#ADAAAA] mt-0.5 font-ui">Ready for your 2-minute booking?</p>
+                <p className="font-heading font-bold text-white text-[18px]">Quick Book</p>
+                <p className="font-ui text-[14px] mt-0.5" style={{ color: '#ADAAAA' }}>Ready for your 2-minute booking?</p>
               </div>
-              <button className="text-[12px] font-semibold font-ui mt-0.5" style={{ color: '#9CFF93' }}>View All</button>
+              <button className="font-ui font-semibold text-[12px] mt-0.5" style={{ color: '#9CFF93' }}>View All</button>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {SPORTS.map((s, i) => (
                 <motion.div key={s.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 + 0.15 }}
                   whileTap={{ scale: 0.92 }}
                   className="flex flex-col items-center justify-center rounded-xl cursor-pointer tap-highlight"
                   style={{ background: s.bg, height: 108, gap: 12 }}>
                   <span style={{ fontSize: 26 }}>{s.emoji}</span>
-                  <span className="text-[18px] font-bold text-white font-heading">{s.label}</span>
+                  <span className="font-heading font-bold text-white text-[18px]">{s.label}</span>
                 </motion.div>
               ))}
             </div>
           </motion.div>
 
-          {/* ── MONTHLY SPEND ── */}
+          {/* ── MONTHLY SPEND bg:#00677F r:16 ── */}
           <motion.div variants={stagger.item}
             className="rounded-2xl px-6 py-4 flex flex-col"
             style={{ background: '#00677F', gap: 8 }}>
             <div className="flex justify-between items-center">
-              <span className="text-[18px] font-bold font-heading" style={{ color: '#EEF9FF' }}>Monthly Spend</span>
+              <span className="font-heading font-bold text-[18px]" style={{ color: '#EEF9FF' }}>Monthly Spend</span>
               <TrendingUp size={20} color="#EEF9FF" strokeWidth={1.5} />
             </div>
-            <p className="text-[32px] font-bold leading-tight font-heading" style={{ color: '#EEF9FF' }}>
+            <p className="font-heading font-bold text-[32px] leading-tight" style={{ color: '#EEF9FF' }}>
               {mockMonthlySpend.amount}
             </p>
-            <p className="text-[12px] font-ui" style={{ color: '#EEF9FF' }}>{mockMonthlySpend.trend}</p>
+            <p className="font-ui text-[12px]" style={{ color: '#EEF9FF' }}>{mockMonthlySpend.trend}</p>
           </motion.div>
 
-          {/* ── UPCOMING GAMES ── */}
+          {/* ── UPCOMING GAMES ──
+              Card: 361×226, r:16, overflow-hidden
+              Content sits at bottom: p:24 gap:8
+              Chip: bg #9CFF93@20%, text #9CFF93, Lexend SemiBold 12px, r:4
+              Title: Space Grotesk Bold 18px white
+              Meta: calendar icon + Lexend Regular 14px #ADAAAA
+              Arrow button: 48×48, bg:#9CFF93, r:12, chevron #006413
+          ── */}
           <motion.div variants={stagger.item} className="flex flex-col" style={{ gap: 16 }}>
             <SectionRow title="Upcoming Games" href="/games" />
             {mockUpcomingGames.map(g => (
               <motion.div key={g.id} whileTap={{ scale: 0.985 }}
-                className="rounded-2xl overflow-hidden relative cursor-pointer"
-                style={{ height: 226 }}>
-                <img src={g.image} alt={g.title} className="w-full h-full object-cover" />
+                className="overflow-hidden relative cursor-pointer"
+                style={{ borderRadius: 16, height: 226 }}>
+                {/* Background image */}
+                <img
+                  src={g.image}
+                  alt={g.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {/* Dark gradient overlay — bottom half darkens */}
                 <div className="absolute inset-0"
-                     style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 60%, transparent 100%)' }} />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <span className="text-[12px] font-semibold font-ui px-2.5 py-1 rounded-[4px]"
-                        style={{ background: 'rgba(0,100,19,0.85)', color: '#9CFF93' }}>
-                    UPCOMING GAME
-                  </span>
-                  <p className="text-[18px] font-bold text-white mt-2 leading-snug font-heading whitespace-pre-line">
+                     style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.10) 100%)' }} />
+                {/* Content anchored to bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-6" style={{ gap: 8 }}>
+                  {/* Status chip: bg rgba(156,255,147,0.20) r:4 px:8 py:2 */}
+                  <div className="inline-flex items-center mb-2"
+                       style={{
+                         background: 'rgba(156,255,147,0.20)',
+                         borderRadius: 4,
+                         padding: '2px 8px',
+                       }}>
+                    <span className="font-ui font-semibold text-[12px]" style={{ color: '#9CFF93' }}>
+                      UPCOMING GAME
+                    </span>
+                  </div>
+                  {/* Title */}
+                  <p className="font-heading font-bold text-white text-[18px] leading-snug whitespace-pre-line">
                     {g.title}
                   </p>
+                  {/* Meta row */}
                   <div className="flex items-center gap-1 mt-1">
-                    <MapPin size={14} color="#ADAAAA" strokeWidth={1.5} />
-                    <span className="text-[14px] text-[#ADAAAA] font-ui">{g.date}</span>
+                    {/* Calendar icon matching li:calendar-days */}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span className="font-ui text-[14px]" style={{ color: '#ADAAAA' }}>{g.date}</span>
                   </div>
                 </div>
+                {/* Arrow button — 48×48 bg:#9CFF93 r:12 */}
                 <motion.div whileTap={{ scale: 0.9 }}
-                  className="absolute bottom-5 right-5 w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: '#00FF41' }}>
-                  <ChevronRight size={18} color="#020202" strokeWidth={2.5} />
+                  className="absolute bottom-6 right-6 flex items-center justify-center"
+                  style={{ width: 48, height: 48, background: '#9CFF93', borderRadius: 12 }}>
+                  <ChevronRight size={20} color="#006413" strokeWidth={2.5} />
                 </motion.div>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* ── NEARBY VENUES ── */}
+          {/* ── NEARBY VENUES ──
+              Card: 300×344, bg:#1E1E1E, r:24
+              Image: 300×192 at top (no text overlay)
+              Rating pill: absolute top-4 right-4, bg:#1E1E1E r:9999, px:12 py:4
+                Star: #9CFF93 filled; text: Lexend SemiBold 12px white
+              Body: p:24 gap:16
+              Venue name: Space Grotesk Bold 18px white
+              Location: GrLocation icon + Lexend Regular 14px #ADAAAA
+              AVAILABLE: Lexend SemiBold 12px #ADAAAA
+              Time: Lexend SemiBold 16px WHITE (#FFFFFF)
+              From: Lexend SemiBold 12px #ADAAAA
+              Price: Lexend SemiBold 16px #9CFF93 (GREEN!)
+              /hr: Lexend Regular 12px #ADAAAA
+          ── */}
           <motion.div variants={stagger.item} className="flex flex-col" style={{ gap: 16, paddingBottom: 8 }}>
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[18px] font-bold text-white font-heading">Nearby Venues</p>
-                <p className="text-[14px] text-[#ADAAAA] mt-0.5 font-ui">Top rated spots in Madrid</p>
+                <p className="font-heading font-bold text-white text-[18px]">Nearby Venues</p>
+                <p className="font-ui text-[14px] mt-0.5" style={{ color: '#ADAAAA' }}>Top rated spots in Madrid</p>
               </div>
               <Link href="/discover">
-                <button className="text-[12px] font-semibold font-ui mt-0.5" style={{ color: '#9CFF93' }}>View All</button>
+                <button className="font-ui font-semibold text-[12px] mt-0.5" style={{ color: '#9CFF93' }}>View All</button>
               </Link>
             </div>
+
+            {/* Horizontal scroll bleeds to screen edge */}
             <div className="-mx-4 overflow-x-auto scrollbar-hide">
               <div className="flex pl-4" style={{ gap: 16, width: 'max-content', paddingRight: 16 }}>
                 {mockNearbyVenues.map((v, i) => (
@@ -190,34 +256,57 @@ export default function HomePage() {
                     initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.09 + 0.1 }}
                     whileTap={{ scale: 0.97 }}
-                    className="flex-none flex flex-col rounded-3xl overflow-hidden cursor-pointer"
-                    style={{ width: 300, background: '#1E1E1E' }}>
-                    <div className="relative" style={{ height: 192 }}>
-                      <img src={v.image} alt={v.name} className="w-full h-full object-cover" />
-                      <div className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 rounded-full"
-                           style={{ background: '#1E1E1E' }}>
+                    className="flex-none flex flex-col cursor-pointer"
+                    style={{ width: 300, background: '#1E1E1E', borderRadius: 24 }}>
+
+                    {/* Image — 300×192 top section */}
+                    <div className="relative flex-none overflow-hidden"
+                         style={{ height: 192, borderRadius: '24px 24px 0 0' }}>
+                      <img
+                        src={v.image}
+                        alt={v.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      {/* Rating pill — absolute top-4 right-4
+                          bg:#1E1E1E r:9999 px:12 py:4 gap:4 */}
+                      <div className="absolute flex items-center gap-1"
+                           style={{ top: 16, right: 16, background: '#1E1E1E', borderRadius: 9999, padding: '4px 12px' }}>
                         <Star size={12} color="#9CFF93" fill="#9CFF93" strokeWidth={0} />
-                        <span className="text-[12px] font-semibold text-white font-ui">{v.rating}</span>
+                        <span className="font-ui font-semibold text-[12px] text-white">{v.rating}</span>
                       </div>
                     </div>
-                    <div className="p-6 flex flex-col" style={{ gap: 16 }}>
+
+                    {/* Body — p:24 gap:16 */}
+                    <div className="flex flex-col" style={{ padding: 24, gap: 16 }}>
+                      {/* Name + location */}
                       <div className="flex flex-col" style={{ gap: 2 }}>
-                        <p className="text-[18px] font-bold text-white leading-snug font-heading">{v.name}</p>
+                        <p className="font-heading font-bold text-white text-[18px] leading-snug">{v.name}</p>
                         <div className="flex items-center gap-1">
-                          <MapPin size={14} color="#ADAAAA" strokeWidth={1.5} />
-                          <span className="text-[14px] text-[#ADAAAA] font-ui">{v.location}</span>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="11" r="3"/><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/>
+                          </svg>
+                          <span className="font-ui text-[14px]" style={{ color: '#ADAAAA' }}>{v.location}</span>
                         </div>
                       </div>
+
+                      {/* Available + From row */}
                       <div className="flex justify-between items-end">
                         <div className="flex flex-col" style={{ gap: 4 }}>
-                          <span className="text-[12px] font-semibold text-[#ADAAAA] uppercase tracking-widest font-ui">Available</span>
-                          <span className="text-[16px] font-semibold font-ui" style={{ color: '#9CFF93' }}>{v.availableFrom}</span>
+                          {/* AVAILABLE: Lexend SemiBold 12px #ADAAAA */}
+                          <span className="font-ui font-semibold text-[12px] uppercase tracking-widest"
+                                style={{ color: '#ADAAAA' }}>Available</span>
+                          {/* Time: Lexend SemiBold 16px WHITE */}
+                          <span className="font-ui font-semibold text-[16px] text-white">{v.availableFrom}</span>
                         </div>
                         <div className="flex flex-col items-end" style={{ gap: 4 }}>
-                          <span className="text-[12px] font-semibold text-[#ADAAAA] font-ui">From</span>
+                          {/* From: Lexend SemiBold 12px #ADAAAA */}
+                          <span className="font-ui font-semibold text-[12px]" style={{ color: '#ADAAAA' }}>From</span>
                           <div className="flex items-baseline gap-0.5">
-                            <span className="text-[16px] font-semibold text-white font-ui">{v.priceFrom}</span>
-                            <span className="text-[12px] text-[#ADAAAA] font-ui">/hr</span>
+                            {/* Price: Lexend SemiBold 16px #9CFF93 (GREEN) */}
+                            <span className="font-ui font-semibold text-[16px]" style={{ color: '#9CFF93' }}>{v.priceFrom}</span>
+                            {/* /hr: Lexend Regular 12px #ADAAAA */}
+                            <span className="font-ui text-[12px]" style={{ color: '#ADAAAA' }}>/hr</span>
                           </div>
                         </div>
                       </div>
@@ -236,10 +325,10 @@ export default function HomePage() {
 }
 
 function SectionRow({ title, href }: { title: string; href?: string }) {
-  const btn = <button className="text-[12px] font-semibold font-ui" style={{ color: '#9CFF93' }}>View All</button>
+  const btn = <button className="font-ui font-semibold text-[12px]" style={{ color: '#9CFF93' }}>View All</button>
   return (
     <div className="flex justify-between items-center">
-      <p className="text-[18px] font-bold text-white font-heading">{title}</p>
+      <p className="font-heading font-bold text-white text-[18px]">{title}</p>
       {href ? <Link href={href}>{btn}</Link> : btn}
     </div>
   )

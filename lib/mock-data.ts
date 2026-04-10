@@ -40,7 +40,7 @@ export const mockUpcomingGames = [
     title: 'Padel Championship\nQuarter Finals',
     venue: 'Central Arena',
     date: '16 Oct, 18:00 • Central Arena',
-    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop',
   },
 ]
 
@@ -52,7 +52,7 @@ export const mockNearbyVenues = [
     rating: 4.9,
     availableFrom: '17:00',
     priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1536564984071-97e2b9dc3442?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&q=85&fit=crop',
   },
   {
     id: '2',
@@ -61,7 +61,7 @@ export const mockNearbyVenues = [
     rating: 4.9,
     availableFrom: '17:00',
     priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=85&fit=crop',
   },
   {
     id: '3',
@@ -70,7 +70,7 @@ export const mockNearbyVenues = [
     rating: 4.9,
     availableFrom: '08:00',
     priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop',
   },
 ]
 
@@ -83,7 +83,7 @@ export const mockVenues = [
     rating: 4.9,
     hours: '08:00 - 23:00',
     priceFrom: 'Rp 400,000',
-    image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=85&fit=crop',
     sports: ['padel', 'tennis'],
   },
   {
@@ -94,7 +94,7 @@ export const mockVenues = [
     rating: 4.9,
     hours: '08:00 - 23:00',
     priceFrom: 'Rp 340,000',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1599474924187-334a4ae5bd3c?w=600&q=85&fit=crop',
     sports: ['futsal', 'badminton'],
   },
   {
@@ -105,7 +105,7 @@ export const mockVenues = [
     rating: 4.9,
     hours: '08:00 - 23:00',
     priceFrom: 'Rp 250,000',
-    image: 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop',
     sports: ['padel'],
   },
   {
@@ -116,7 +116,7 @@ export const mockVenues = [
     rating: 4.7,
     hours: '07:00 - 22:00',
     priceFrom: 'Rp 180,000',
-    image: 'https://images.unsplash.com/photo-1536564984071-97e2b9dc3442?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&q=85&fit=crop',
     sports: ['tennis'],
   },
 ]
