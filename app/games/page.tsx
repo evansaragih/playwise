@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { GrLocation } from 'react-icons/gr'
 import { MdQrCode2 } from 'react-icons/md'
 import { LuBellRing, LuPlus, LuChevronRight, LuTimer, LuClock } from 'react-icons/lu'
+import Link from 'next/link'
 import BottomNav from '@/components/layout/BottomNav'
 
 /* ── Types ── */
@@ -64,8 +65,9 @@ export default function GamesPage() {
     <div className="bg-[#020202] page-fade-bottom"
          style={{ paddingBottom:'calc(100px + var(--sab,0px))' }}>
 
-      {/* ══ TOP BAR — bg:#0E0E0E ══ */}
-      <div style={{ background:'#0E0E0E' }}>
+      {/* ══ TOP BAR — FIXED ══ */}
+      <div className="fixed z-50"
+           style={{ background:'#0E0E0E', top:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))' }}>
         <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
         <div className="px-4 pt-4 pb-4">
           {/* Title row */}
@@ -73,18 +75,26 @@ export default function GamesPage() {
             <h1 className="font-heading font-bold text-white" style={{ fontSize:22 }}>My Games</h1>
             <div className="flex items-center gap-3">
               {/* Bell */}
-              <div className="liquid-glass-icon flex items-center justify-center relative"
-                   style={{ width:46, height:46, borderRadius:9999 }}>
-                <LuBellRing size={20} color="#F3F3F3" strokeWidth={1.5} />
-                <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full"
-                      style={{ background:'#00FF41' }} />
-              </div>
+              <Link href="/notifications">
+                <div className="liquid-glass-icon flex items-center justify-center relative cursor-pointer tap-highlight"
+                     style={{ width:46, height:46, borderRadius:9999 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F5F5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    <path d="M2 8c0-2.2.7-4.3 2-6"/><path d="M22 8a10 10 0 0 0-2-6"/>
+                  </svg>
+                  <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full"
+                        style={{ background:'#00FF41' }} />
+                </div>
+              </Link>
               {/* Avatar */}
-              <div className="liquid-glass-icon overflow-hidden"
-                   style={{ width:46, height:46, borderRadius:9999 }}>
-                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
-                     alt="avatar" className="w-full h-full object-cover" />
-              </div>
+              <Link href="/profile">
+                <div className="liquid-glass-icon overflow-hidden"
+                     style={{ width:46, height:46, borderRadius:9999 }}>
+                  <img src="/avatar.png"
+                       alt="avatar" className="w-full h-full object-cover" />
+                </div>
+              </Link>
             </div>
           </div>
           {/* Subtitle */}
@@ -106,6 +116,9 @@ export default function GamesPage() {
           </div>
         </div>
       </div>
+      
+      {/* Spacer for fixed top bar */}
+      <div style={{ height: 'calc(var(--sat, 0px) + 152px)', flex: 'none' }} />
 
       {/* ══ CONTENT ══ */}
       <AnimatePresence mode="wait">
@@ -131,7 +144,7 @@ export default function GamesPage() {
                   <div className="flex gap-4" style={{ width:'max-content', paddingRight:16 }}>
                     {pendingGames.map(g => (
                       <div key={g.id} style={{ width:320, flexShrink:0 }}>
-                        <GameCard game={g} onPay={() => router.push('/games')} />
+                        <GameCard game={g} onPay={() => router.push(`/payment-status/${g.id}`)} />
                       </div>
                     ))}
                   </div>

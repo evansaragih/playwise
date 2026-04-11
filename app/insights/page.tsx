@@ -56,7 +56,8 @@ export default function InsightsPage() {
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
         {/* ══ TOP BAR ══ */}
-        <motion.div variants={stagger.item} style={{ background:'#0E0E0E' }}>
+        <motion.div variants={stagger.item} className="fixed z-50"
+             style={{ background:'#0E0E0E', top:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))' }}>
           <div className="status-bar-spacer" />
           <div className="px-4 pb-4 pt-4 flex items-center justify-between">
             <div className="flex items-center gap-3 h-[46px] rounded-xl px-4 flex-1"
@@ -80,6 +81,8 @@ export default function InsightsPage() {
             </div>
           </div>
         </motion.div>
+        {/* Spacer for fixed top bar */}
+        <div style={{ height: 'calc(var(--sat, 0px) + 78px)' }} />
 
         <div className="flex flex-col gap-6 px-4 pt-6">
 

@@ -38,7 +38,8 @@ export default function HomePage() {
       <motion.div variants={stagger.container} initial="initial" animate="animate">
 
         {/* ══ TOP BAR ══ */}
-        <motion.div variants={stagger.item} style={{ background: '#0E0E0E' }}>
+        <motion.div variants={stagger.item} className="fixed z-50"
+          style={{ background: '#0E0E0E', top:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))' }}>
           {/* Fills iOS status bar height exactly */}
           <div className="status-bar-spacer" />
           {/* Content below status bar */}
@@ -74,6 +75,9 @@ export default function HomePage() {
             </div>
           </div>
         </motion.div>
+        
+        {/* Spacer for fixed top bar */}
+        <div style={{ height: 'calc(var(--sat, 0px) + 78px)' }} />
 
         {/* ══ SCROLL BODY px-4 gap-6 ══ */}
         <div className="flex flex-col gap-6 px-4 pt-6">

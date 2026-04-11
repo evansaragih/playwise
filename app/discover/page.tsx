@@ -85,9 +85,9 @@ export default function DiscoverPage() {
         style={{ display:'flex', flexDirection:'column' }}>
 
         {/* ══ TOP BAR — shared between both views ══
-            bg:#0E0E0E, pt:64, px:16, pb:16, FIXED at top */}
-        <motion.div variants={stagger.item} className="px-4 pb-4 flex-none"
-          style={{ background:'#0E0E0E' }}>
+            bg:#0E0E0E, FIXED at top */}
+        <motion.div variants={stagger.item} className="px-4 pb-4 flex-none fixed z-50"
+          style={{ background:'#0E0E0E', top:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))' }}>
           <div className="status-bar-spacer" />
           <div className="px-0 pt-4">
 
@@ -161,6 +161,9 @@ export default function DiscoverPage() {
           </div>
           </div>{/* /pt-4 */}
         </motion.div>
+        
+        {/* Spacer for fixed top bar */}
+        <div style={{ height: 'calc(var(--sat, 0px) + 214px)', flex: 'none' }} />
 
         {/* ══ CONTENT ══ */}
         <AnimatePresence mode="wait">
@@ -219,7 +222,7 @@ export default function DiscoverPage() {
 
             /* ── MAP VIEW: fixed height, no scroll ── */
             <motion.div key="map" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
-              style={{ position:'relative', flex: 'none', height: mapH, overflow:'hidden' }}>
+              style={{ position:'relative', flex: 'none', height: 'calc(100svh - var(--sat, 0px) - 214px)', overflow:'hidden' }}>
 
               <MapView
                 venues={filtered}
