@@ -397,10 +397,17 @@ export default function BookingSummaryPage() {
             </div>
           </div>
 
-          {/* PROCEED BOOKING — bg:#9CFF93 r:9999 h:64 */}
+          {/* PROCEED BOOKING — navigates to /payment/[id] */}
           <motion.button whileTap={{ scale:0.97 }}
+            onClick={() => {
+              /* persist cart to sessionStorage so payment page can read it */
+              const compact = bookings.map(b => ({ court:b.court, hours:b.hours, date:b.date.toISOString(), sport:b.court===1?'padel':'tennis' }))
+              sessionStorage.setItem('playwise_cart_sync', JSON.stringify(compact))
+              router.push(`/payment/${venue.id}`)
+            }}
             className="w-full flex items-center justify-center gap-2 font-heading font-bold"
-            style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18 }}>
+            style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18,
+              marginBottom: 'max(24px, var(--sab, 24px))' }}>
             PROCEED BOOKING
             <LuChevronRight size={20} color="#006413" strokeWidth={2.5} />
           </motion.button>
