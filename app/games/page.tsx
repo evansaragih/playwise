@@ -1,224 +1,310 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, QrCode, ChevronRight, MapPin, Clock, Calendar } from 'lucide-react'
-import Link from 'next/link'
-import PageWrapper from '@/components/layout/PageWrapper'
-import { GamesSkeleton } from '@/components/ui/Skeleton'
-import { StatusChip } from '@/components/ui/StatusChip'
-import { mockGames } from '@/lib/mock-data'
+import { GrLocation } from 'react-icons/gr'
+import { MdQrCode2 } from 'react-icons/md'
+import { LuBellRing, LuPlus, LuChevronRight, LuTimer, LuClock } from 'react-icons/lu'
+import BottomNav from '@/components/layout/BottomNav'
 
-type Game = typeof mockGames.upcoming[0]
-
-const stagger = {
-  container: { animate: { transition: { staggerChildren: 0.07 } } },
-  item: {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
-  },
+/* ── Types ── */
+type GameStatus = 'PENDING' | 'CONFIRMED' | 'PAID'
+interface Game {
+  id: string
+  court: string
+  sport: string
+  venue: string
+  schedule: string
+  status: GameStatus
+  dateGroup: 'pending' | 'today' | 'tomorrow' | 'future'
+  dateLabel?: string
 }
 
-// Group upcoming games by date label
-function groupByDate(games: Game[]) {
-  const groups: Record<string, Game[]> = {}
-  games.forEach(g => {
-    const key = g.date
-    if (!groups[key]) groups[key] = []
-    groups[key].push(g)
-  })
-  return groups
+/* ── Mock data ── */
+const UPCOMING: Game[] = [
+  // Pending payment — horizontal scroll section
+  { id:'p1', court:'Court 1', sport:'Padel', venue:'SportHub Arena',      schedule:'10:00 - 12:00', status:'PENDING',   dateGroup:'pending' },
+  { id:'p2', court:'Court 4', sport:'Padel', venue:'SportHub Arena',      schedule:'16:30 - 18:00', status:'PENDING',   dateGroup:'pending' },
+  // Today
+  { id:'t1', court:'Court 1', sport:'Padel', venue:'SportHub Arena',      schedule:'10:00 - 12:00', status:'CONFIRMED', dateGroup:'today',    dateLabel:'Oct 14' },
+  { id:'t2', court:'Court 4', sport:'Padel', venue:'SportHub Arena',      schedule:'16:30 - 18:00', status:'CONFIRMED', dateGroup:'today',    dateLabel:'Oct 14' },
+  // Tomorrow
+  { id:'tm1', court:'Court 4', sport:'Padel', venue:'Metro Sports Center', schedule:'16:30 - 18:00', status:'PAID',     dateGroup:'tomorrow', dateLabel:'Oct 15' },
+]
+
+const PAST: Game[] = [
+  { id:'h1', court:'Court 2', sport:'Tennis', venue:'Elite Tennis Court',   schedule:'09:00 - 10:00', status:'PAID', dateGroup:'today',    dateLabel:'Oct 10' },
+  { id:'h2', court:'Court 1', sport:'Padel',  venue:'The Padel Club',       schedule:'14:00 - 16:00', status:'PAID', dateGroup:'today',    dateLabel:'Oct 8'  },
+  { id:'h3', court:'Court 3', sport:'Futsal', venue:'Senayan Sports Hall',  schedule:'19:00 - 21:00', status:'PAID', dateGroup:'tomorrow', dateLabel:'Oct 5'  },
+]
+
+/* ── Status styling ── */
+const STATUS_STYLE: Record<GameStatus, { bg: string; color: string; border: string; accentBar: string }> = {
+  PENDING:   { bg:'rgba(255,184,0,0.15)',    color:'#FFB800', border:'rgba(255,184,0,0.3)',    accentBar:'#FFB800' },
+  CONFIRMED: { bg:'rgba(156,255,147,0.15)',  color:'#9CFF93', border:'rgba(156,255,147,0.3)',  accentBar:'#9CFF93' },
+  PAID:      { bg:'rgba(117,117,117,0.15)',  color:'#757575', border:'rgba(117,117,117,0.3)',  accentBar:'#757575' },
+}
+
+const stagger = {
+  container: { animate:{ transition:{ staggerChildren:0.06 } } },
+  item: { initial:{ opacity:0, y:16 }, animate:{ opacity:1, y:0, transition:{ duration:0.36, ease:[0.22,1,0.36,1] } } },
 }
 
 export default function GamesPage() {
-  const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming')
+  const router = useRouter()
+  const [tab, setTab] = useState<'upcoming'|'past'>('upcoming')
 
-  useEffect(() => { setTimeout(() => setLoading(false), 1100) }, [])
+  const games = tab === 'upcoming' ? UPCOMING : PAST
 
-  if (loading) return <div className="min-h-screen pb-20"><GamesSkeleton /></div>
-
-  const upcomingGroups = groupByDate(mockGames.upcoming)
+  const pendingGames  = UPCOMING.filter(g => g.dateGroup === 'pending')
+  const todayGames    = UPCOMING.filter(g => g.dateGroup === 'today')
+  const tomorrowGames = UPCOMING.filter(g => g.dateGroup === 'tomorrow')
 
   return (
-    <PageWrapper>
-      <motion.div variants={stagger.container} initial="initial" animate="animate">
+    <div className="bg-[#020202] page-fade-bottom"
+         style={{ paddingBottom:'calc(100px + var(--sab,0px))' }}>
 
-        {/* ── HEADER ── */}
-        <motion.div variants={stagger.item}
-          className="flex items-center justify-between px-4 pt-6 pb-2">
-          <div>
-            <h1 className="text-2xl font-black text-white tracking-tight font-heading">My Games</h1>
-            <p className="text-xs text-[#ADAAAA] mt-0.5 font-ui">Organize and track your games</p>
-          </div>
-          <button className="relative h-10 w-10 rounded-full flex items-center justify-center tap-highlight"
-                  style={{ background: '#1E1E1E', border: '1px solid #2A2A2A' }}>
-            <Bell size={18} color="#F3F3F3" />
-          </button>
-        </motion.div>
-
-        {/* ── TABS ── */}
-        <motion.div variants={stagger.item} className="flex gap-2 px-4 py-3">
-          {(['upcoming', 'past'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className="px-5 h-9 rounded-full text-sm font-bold capitalize transition-all tap-highlight"
-              style={tab === t
-                ? { background: '#00FF41', color: '#020202' }
-                : { background: '#1E1E1E', color: '#9E9E9E', border: '1px solid #2A2A2A' }
-              }>
-              {t === 'upcoming' ? 'Upcoming' : 'Past Game'}
-            </button>
-          ))}
-        </motion.div>
-
-        {/* ── CONTENT ── */}
-        <AnimatePresence mode="wait">
-          <motion.div key={tab}
-            initial={{ opacity: 0, x: tab === 'upcoming' ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: tab === 'upcoming' ? 20 : -20 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="px-4">
-
-            {tab === 'upcoming' && (
-              <div className="space-y-1">
-                {/* Pending payment section */}
-                {mockGames.upcoming.filter(g => g.status === 'PENDING').length > 0 && (
-                  <div className="mb-4">
-                    <SectionLabel label="PENDING PAYMENT" />
-                    {mockGames.upcoming
-                      .filter(g => g.status === 'PENDING')
-                      .map((g, i) => <GameCard key={g.id} game={g} index={i} />)}
-                  </div>
-                )}
-
-                {/* Grouped by date */}
-                {Object.entries(upcomingGroups)
-                  .filter(([date]) => date !== 'Today' || mockGames.upcoming.filter(g=>g.date==='Today'&&g.status!=='PENDING').length > 0)
-                  .map(([date, games]) => {
-                    const nonPending = games.filter(g => g.status !== 'PENDING')
-                    if (nonPending.length === 0) return null
-                    const dateLabel = nonPending[0].dateLabel
-                    return (
-                      <div key={date} className="mb-4">
-                        <SectionLabel label={date.toUpperCase()} sublabel={dateLabel} />
-                        {nonPending.map((g, i) => <GameCard key={g.id} game={g} index={i} />)}
-                      </div>
-                    )
-                  })}
+      {/* ══ TOP BAR — bg:#0E0E0E ══ */}
+      <div style={{ background:'#0E0E0E' }}>
+        <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
+        <div className="px-4 pt-4 pb-4">
+          {/* Title row */}
+          <div className="flex items-center justify-between mb-1">
+            <h1 className="font-heading font-bold text-white" style={{ fontSize:22 }}>My Games</h1>
+            <div className="flex items-center gap-3">
+              {/* Bell */}
+              <div className="liquid-glass-icon flex items-center justify-center relative"
+                   style={{ width:46, height:46, borderRadius:9999 }}>
+                <LuBellRing size={20} color="#F3F3F3" strokeWidth={1.5} />
+                <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full"
+                      style={{ background:'#00FF41' }} />
               </div>
+              {/* Avatar */}
+              <div className="liquid-glass-icon overflow-hidden"
+                   style={{ width:46, height:46, borderRadius:9999 }}>
+                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
+                     alt="avatar" className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+          {/* Subtitle */}
+          <p className="font-ui text-[14px] mb-4" style={{ color:'#9E9E9E' }}>
+            Organize and track your games
+          </p>
+          {/* Tabs — Upcoming / Past Game */}
+          <div className="flex gap-4">
+            {(['upcoming','past'] as const).map(t => (
+              <motion.button key={t} whileTap={{ scale:0.95 }}
+                onClick={() => setTab(t)}
+                className="flex-1 font-ui font-semibold text-[12px] h-[34px] rounded-full transition-all"
+                style={tab === t
+                  ? { background:'#9CFF93', color:'#006413' }
+                  : { background:'#20201F', color:'#ADAAAA' }}>
+                {t === 'upcoming' ? 'Upcoming' : 'Past Game'}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ CONTENT ══ */}
+      <AnimatePresence mode="wait">
+        {tab === 'upcoming' ? (
+          <motion.div key="upcoming"
+            initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+            className="px-4 flex flex-col gap-6 pt-6">
+
+            {/* ── PENDING PAYMENT — horizontal scroll ── */}
+            {pendingGames.length > 0 && (
+              <motion.div variants={stagger.container} initial="initial" animate="animate">
+                {/* Section header */}
+                <motion.div variants={stagger.item}
+                  className="flex items-center gap-4 mb-4">
+                  <span className="font-ui font-medium text-[14px]" style={{ color:'#ADAAAA' }}>
+                    Pending Payment
+                  </span>
+                  <div className="flex-1 h-px" style={{ background:'rgba(72,72,71,0.20)' }} />
+                </motion.div>
+                {/* Horizontal scroll */}
+                <motion.div variants={stagger.item}
+                  className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+                  <div className="flex gap-4" style={{ width:'max-content', paddingRight:16 }}>
+                    {pendingGames.map(g => (
+                      <div key={g.id} style={{ width:320, flexShrink:0 }}>
+                        <GameCard game={g} onPay={() => router.push('/games')} />
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </motion.div>
             )}
 
-            {tab === 'past' && (
-              <div className="space-y-3">
-                {mockGames.past.map((g, i) => <GameCard key={g.id} game={g} index={i} />)}
-              </div>
+            {/* ── TODAY ── */}
+            {todayGames.length > 0 && (
+              <DateSection label="Today" date={todayGames[0].dateLabel!} games={todayGames} />
+            )}
+
+            {/* ── TOMORROW ── */}
+            {tomorrowGames.length > 0 && (
+              <DateSection label="Tomorrow" date={tomorrowGames[0].dateLabel!} games={tomorrowGames} />
             )}
           </motion.div>
-        </AnimatePresence>
+        ) : (
+          <motion.div key="past"
+            initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+            className="px-4 flex flex-col gap-6 pt-6">
+            {/* Group past by date label */}
+            {['Oct 10','Oct 8','Oct 5'].map(dateLabel => {
+              const dayGames = PAST.filter(g => g.dateLabel === dateLabel)
+              if (!dayGames.length) return null
+              return (
+                <DateSection key={dateLabel}
+                  label={dateLabel === 'Oct 10' ? 'Oct 10' : dateLabel}
+                  date={dateLabel}
+                  games={dayGames}
+                  isPast />
+              )
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <div className="h-6" />
-      </motion.div>
+      {/* FAB — + Create Game */}
+      <motion.button
+        initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }}
+        transition={{ delay:0.4, type:'spring', stiffness:280, damping:20 }}
+        whileTap={{ scale:0.9 }}
+        className="fixed z-40 flex items-center justify-center tap-highlight"
+        style={{
+          bottom:'max(88px, calc(var(--sab,0px) + 76px))',
+          right:16, width:56, height:56,
+          background:'#006413', borderRadius:9999,
+          boxShadow:'inset 0 0 95px 0 rgba(242,242,242,0.50),inset -9px -9px 9px -12px rgba(179,179,179,0.40),inset 9px 9px 4px -12px rgba(179,179,179,1.00)',
+        }}>
+        <LuPlus size={24} color="#9CFF93" strokeWidth={2} />
+      </motion.button>
 
-      {/* ── FAB ── */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.5, type: 'spring', stiffness: 260, damping: 20 }}
-        className="fixed bottom-24 right-4 z-40">
-        <motion.button whileTap={{ scale: 0.9 }}
-          className="w-14 h-14 rounded-full flex items-center justify-center font-black text-2xl shadow-lg tap-highlight glow-primary"
-          style={{ background: '#00FF41', color: '#020202' }}>
-          +
-        </motion.button>
-      </motion.div>
-    </PageWrapper>
-  )
-}
-
-function SectionLabel({ label, sublabel }: { label: string; sublabel?: string }) {
-  return (
-    <div className="flex items-center justify-between py-2 mb-2">
-      <span className="text-xs font-bold tracking-widest text-neutral uppercase">{label}</span>
-      {sublabel && <span className="text-xs text-neutral">{sublabel}</span>}
+      <BottomNav />
     </div>
   )
 }
 
-function GameCard({ game, index }: { game: Game; index: number }) {
-  const isPending = game.status === 'PENDING'
-  const isCompleted = game.status === 'COMPLETED'
-
+/* ── Date section with header + cards ── */
+function DateSection({ label, date, games, isPast }: { label:string; date:string; games:Game[]; isPast?:boolean }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-      whileTap={{ scale: 0.98 }}
-      className="rounded-2xl overflow-hidden relative mb-3 cursor-pointer tap-highlight"
-      style={{ background: '#20201F' }}>
+      initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+      transition={{ duration:0.36, ease:[0.22,1,0.36,1] }}
+      className="flex flex-col gap-4">
+      {/* Section header row: LABEL — divider — DATE */}
+      <div className="flex items-center gap-4">
+        <span className="font-ui font-medium text-[14px] uppercase flex-none"
+              style={{ color:'#ADAAAA' }}>{label}</span>
+        <div className="flex-1 h-px" style={{ background:'rgba(72,72,71,0.20)' }} />
+        <span className="font-ui text-[12px] flex-none"
+              style={{ color:'rgba(173,170,170,0.60)' }}>{date}</span>
+      </div>
+      {/* Cards */}
+      {games.map((g, i) => (
+        <motion.div key={g.id}
+          initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:i*0.06, duration:0.34 }}>
+          <GameCard game={g} isPast={isPast} />
+        </motion.div>
+      ))}
+    </motion.div>
+  )
+}
 
-      {/* Left accent bar */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
-           style={{ background: game.statusColor }} />
+/* ── Game Card ── */
+function GameCard({ game, onPay, isPast }: { game:Game; onPay?:()=>void; isPast?:boolean }) {
+  const router   = useRouter()
+  const style    = STATUS_STYLE[game.status]
+  const isPending  = game.status === 'PENDING'
+  const isConfirmed = game.status === 'CONFIRMED'
 
-      <div className="p-4 pl-5">
-        {/* Top row */}
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1">
-            <StatusChip status={game.status} />
-            <h3 className="text-base font-bold text-white mt-2">{game.court}</h3>
-            <div className="flex items-center gap-1 mt-1">
-              <MapPin size={11} color="#9E9E9E" />
-              <span className="text-xs text-neutral">{game.venue}</span>
+  return (
+    <motion.div whileTap={{ scale:0.985 }}
+      className="relative overflow-hidden rounded-xl"
+      style={{ background:'#20201F' }}>
+
+      {/* Left accent bar — 4×172 r:9999 */}
+      <div className="absolute left-0 top-6 rounded-full"
+           style={{ width:4, height:'calc(100% - 48px)', background:style.accentBar, borderRadius:9999 }} />
+
+      {/* Card content — p:24 */}
+      <div style={{ padding:'24px 24px 24px 28px' }}>
+
+        {/* Top row: status chip + icon */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex flex-col gap-2">
+            {/* Status chip */}
+            <span className="font-ui font-semibold text-[12px] px-2.5 py-1 rounded self-start"
+                  style={{ background:style.bg, color:style.color, border:`1px solid ${style.border}` }}>
+              {game.status}
+            </span>
+            {/* Court name — Space Grotesk Bold 22px */}
+            <p className="font-heading font-bold text-white" style={{ fontSize:22, lineHeight:1.15 }}>
+              {game.court} - {game.sport}
+            </p>
+            {/* Venue — Lexend Regular 14px #ADAAAA + location icon */}
+            <div className="flex items-center gap-1">
+              <GrLocation size={14} color="#ADAAAA" />
+              <span className="font-ui text-[14px]" style={{ color:'#ADAAAA' }}>{game.venue}</span>
             </div>
           </div>
-          {/* QR icon or action icon */}
-          {game.hasQR && !isPending && (
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                 style={{ background: '#262626' }}>
-              <QrCode size={22} color="#9E9E9E" />
-            </div>
-          )}
-          {isPending && (
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                 style={{ background: '#262626' }}>
-              <Clock size={22} color="#FFB800" />
-            </div>
-          )}
-          {isCompleted && (
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                 style={{ background: '#262626' }}>
-              <Calendar size={22} color="#9E9E9E" />
-            </div>
-          )}
+          {/* Right icon box — 64×64 bg:#262626 r:10.67 */}
+          <div className="flex items-center justify-center flex-none rounded-xl"
+               style={{ width:64, height:64, background:'#262626', borderRadius:10.67 }}>
+            {isPending ? (
+              <LuTimer size={32} color="#FFB800" strokeWidth={1.2} />
+            ) : (
+              <MdQrCode2 size={48} color="#ADAAAA" />
+            )}
+          </div>
         </div>
 
-        {/* Bottom row */}
-        <div className="flex justify-between items-center pt-3"
-             style={{ borderTop: '1px solid #2A2A2A' }}>
-          <div>
-            <p className="text-[9px] uppercase tracking-widest text-neutral font-semibold">Schedule</p>
-            <p className="text-sm font-bold text-white mt-0.5">{game.schedule}</p>
+        {/* Divider + schedule + action */}
+        <div className="flex items-end justify-between pt-4"
+             style={{ borderTop:'1px solid #2A2A2A' }}>
+          <div className="flex flex-col gap-0.5">
+            {/* SCHEDULE label — Lexend Regular 10px #ADAAAA */}
+            <span className="font-ui text-[10px] uppercase tracking-wider" style={{ color:'#ADAAAA' }}>
+              Schedule
+            </span>
+            {/* Time — Space Grotesk Bold 18px white */}
+            <p className="font-heading font-bold text-white" style={{ fontSize:18 }}>{game.schedule}</p>
           </div>
 
-          {isPending ? (
-            <motion.button whileTap={{ scale: 0.95 }}
-              className="px-5 h-9 rounded-full font-bold text-xs tap-highlight"
-              style={{ background: '#FFB800', color: '#715200' }}>
+          {/* Action button */}
+          {isPending && (
+            <motion.button whileTap={{ scale:0.94 }}
+              onClick={onPay}
+              className="font-ui font-semibold text-[12px] px-4 h-[34px] rounded-full"
+              style={{ background:'#FFB800', color:'#715200' }}>
               PAY NOW
             </motion.button>
-          ) : game.action === 'VIEW PASS' ? (
-            <motion.button whileTap={{ scale: 0.95 }}
-              className="px-5 h-9 rounded-full font-bold text-xs tap-highlight"
-              style={{ background: '#006413', color: '#00FF41', border: '1px solid #00FF41' }}>
+          )}
+          {isConfirmed && (
+            <motion.button whileTap={{ scale:0.94 }}
+              onClick={() => router.push(`/booking-pass/${game.id}`)}
+              className="font-ui font-semibold text-[12px] px-4 h-[34px] rounded-full"
+              style={{ background:'#9CFF93', color:'#006413' }}>
               VIEW PASS
             </motion.button>
-          ) : (
-            <motion.button whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-1.5 px-4 h-9 rounded-full font-bold text-xs tap-highlight"
-              style={{ background: '#1E1E1E', color: '#9E9E9E', border: '1px solid #2A2A2A' }}>
+          )}
+          {game.status === 'PAID' && !isPast && (
+            <motion.button whileTap={{ scale:0.94 }}
+              className="font-ui font-semibold text-[12px] px-6 h-[34px] rounded-full"
+              style={{ background:'rgba(38,38,38,0.10)', border:'1px solid #2A2A2A', color:'#9E9E9E' }}>
               DETAILS
-              <ChevronRight size={13} />
+            </motion.button>
+          )}
+          {isPast && (
+            <motion.button whileTap={{ scale:0.94 }}
+              className="font-ui font-semibold text-[12px] px-6 h-[34px] rounded-full"
+              style={{ background:'rgba(38,38,38,0.10)', border:'1px solid #2A2A2A', color:'#9E9E9E' }}>
+              DETAILS
             </motion.button>
           )}
         </div>
