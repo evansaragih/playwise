@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { Search, MapPin, TrendingUp, ChevronRight, Star } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import BottomNav from '@/components/layout/BottomNav'
 import TopBar from '@/components/layout/TopBar'
 import PendingPaymentCard from '@/components/ui/PendingPaymentCard'
@@ -28,6 +29,7 @@ const SPORTS = [
 ]
 
 export default function HomePage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [expiresAt] = useState(() => new Date(Date.now() + 19 * 60 * 1000 + 54 * 1000))
   useEffect(() => { const t = setTimeout(() => setLoading(false), 500); return () => clearTimeout(t) }, [])
@@ -91,7 +93,8 @@ export default function HomePage() {
             {mockPendingPayments.map(p => (
               <PendingPaymentCard key={p.id}
                 court={p.court} venue={p.venue} schedule={p.schedule}
-                expiresAt={expiresAt} />
+                expiresAt={expiresAt} 
+                onPayNow={() => router.push(`/payment-status/${p.id}`)} />
             ))}
           </motion.div>
 
@@ -102,7 +105,9 @@ export default function HomePage() {
                 <p className="font-heading font-bold text-white text-[18px]">Quick Book</p>
                 <p className="font-ui text-[14px] mt-0.5" style={{ color: '#ADAAAA' }}>Ready for your 2-minute booking?</p>
               </div>
-              <button className="font-ui font-semibold text-[12px] mt-0.5" style={{ color: '#9CFF93' }}>View All</button>
+              <Link href="/select-sport">
+                <button className="font-ui font-semibold text-[12px] mt-0.5 tap-highlight" style={{ color: '#9CFF93' }}>View All</button>
+              </Link>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {SPORTS.map((s, i) => (
@@ -110,6 +115,7 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 + 0.15 }}
                   whileTap={{ scale: 0.92 }}
+                  onClick={() => router.push(`/discover?filter=${s.id}`)}
                   className="flex flex-col items-center justify-center rounded-xl cursor-pointer tap-highlight"
                   style={{ background: s.bg, height: 108, gap: 12 }}>
                   <span style={{ fontSize: 26 }}>{s.emoji}</span>
@@ -134,7 +140,8 @@ export default function HomePage() {
             <SectionRow title="Upcoming Games" href="/games" />
             {mockUpcomingGames.map(g => (
               <motion.div key={g.id} whileTap={{ scale: 0.985 }}
-                className="overflow-hidden relative cursor-pointer"
+                onClick={() => router.push(`/booking-pass/${g.id}`)}
+                className="overflow-hidden relative cursor-pointer tap-highlight"
                 style={{ borderRadius: 16, height: 226 }}>
                 {/* Background image */}
                 <img
@@ -290,6 +297,7 @@ export default function HomePage() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.6, type: 'spring', stiffness: 280, damping: 20 }}
         whileTap={{ scale: 0.90 }}
+        onClick={() => router.push('/select-sport')}
         className="fixed z-40 flex items-center justify-center tap-highlight"
         style={{
           bottom: 'max(88px, calc(env(safe-area-inset-bottom) + 76px))',

@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { HiStar } from 'react-icons/hi'
 import { GrLocation } from 'react-icons/gr'
 import { LuSearch, LuList, LuMap } from 'react-icons/lu'
-import { MdSportsTennis, MdSportsCricket } from 'react-icons/md'
+import { MdSportsTennis, MdSportsCricket, MdSportsVolleyball } from 'react-icons/md'
 import { IoTennisball, IoFootball, IoBasketball } from 'react-icons/io5'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import BottomNav from '@/components/layout/BottomNav'
 import { DiscoverSkeleton } from '@/components/ui/Skeleton'
@@ -20,13 +21,14 @@ const MapView = dynamic(() => import('@/components/ui/MapView'), {
 const SPORT_ICONS: Record<string, React.ReactNode> = {
   padel:     <MdSportsTennis  size={14} />,
   tennis:    <IoTennisball    size={14} />,
+  volley:    <MdSportsVolleyball size={14} />,
   futsal:    <IoFootball      size={14} />,
   badminton: <IoBasketball    size={14} />,
   cricket:   <MdSportsCricket size={14} />,
   basket:    <IoBasketball    size={14} />,
 }
 
-const FILTERS = ['Nearby', 'All', 'padel', 'tennis', 'futsal', 'badminton', 'cricket', 'basket']
+const FILTERS = ['Nearby', 'All', 'padel', 'tennis', 'volley', 'futsal', 'cricket', 'basket']
 
 const VENUES = [
   { id:'1', name:'SportHub Arena',     location:'Central Jakarta', distance:'1.2km', rating:4.9, hours:'08:00 - 23:00', price:'Rp 400,000', lat:-6.1754,  lng:106.8272, image:'https://images.unsplash.com/photo-1526888935184-a82d2a4b7e67?w=720&q=85&fit=crop' },
@@ -44,8 +46,18 @@ const stagger = {
 const TOP_BAR_H = 232   // measured: pt:64 + title:28 + mb:12 + search:46 + mb:12 + chips:34 + mb:12 + count:20 + pb:16
 
 export default function DiscoverPage() {
+  const router = useRouter()
   const [loading, setLoading]     = useState(true)
   const [activeFilter, setFilter] = useState('Nearby')
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const filterParam = urlParams.get('filter')
+    if (filterParam) {
+      const lower = filterParam.toLowerCase()
+      setFilter(lower === 'nearby' || lower === 'all' ? filterParam.charAt(0).toUpperCase() + filterParam.slice(1).toLowerCase() : lower)
+    }
+  }, [])
   const [viewMode, setView]       = useState<'list'|'map'>('list')
   const [search, setSearch]       = useState('')
   const [selected, setSelected]   = useState<string|null>(null)
@@ -246,7 +258,8 @@ export default function DiscoverPage() {
           initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }}
           transition={{ delay:0.5, type:'spring', stiffness:280, damping:20 }}
           whileTap={{ scale:0.90 }}
-          className="fixed z-40 flex items-center justify-center"
+          onClick={() => router.push('/select-sport')}
+          className="fixed z-40 flex items-center justify-center tap-highlight"
           style={{ bottom:'max(88px, calc(env(safe-area-inset-bottom) + 76px))', right:16, width:56, height:56, background:'#006413', borderRadius:9999,
             boxShadow:'inset 0 0 95px 0 rgba(242,242,242,0.50),inset -9px -9px 9px -12px rgba(179,179,179,0.40),inset 9px 9px 4px -12px rgba(179,179,179,1.00)' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CFF93" strokeWidth="2"

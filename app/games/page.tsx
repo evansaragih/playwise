@@ -21,22 +21,32 @@ interface Game {
   dateLabel?: string
 }
 
-/* ── Mock data ── */
+/* ── Mock data & Dynamic Dates ── */
+const TODAY = new Date()
+const TOMORROW = new Date()
+TOMORROW.setDate(TODAY.getDate() + 1)
+const PAST_DATE = new Date()
+PAST_DATE.setDate(TODAY.getDate() - 3)
+
+const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+
+const todayStr = formatDate(TODAY)
+const tomorrowStr = formatDate(TOMORROW)
+const pastStr = formatDate(PAST_DATE)
+
 const UPCOMING: Game[] = [
   // Pending payment — horizontal scroll section
   { id:'p1', court:'Court 1', sport:'Padel', venue:'SportHub Arena',      schedule:'10:00 - 12:00', status:'PENDING',   dateGroup:'pending' },
   { id:'p2', court:'Court 4', sport:'Padel', venue:'SportHub Arena',      schedule:'16:30 - 18:00', status:'PENDING',   dateGroup:'pending' },
   // Today
-  { id:'t1', court:'Court 1', sport:'Padel', venue:'SportHub Arena',      schedule:'10:00 - 12:00', status:'CONFIRMED', dateGroup:'today',    dateLabel:'Oct 14' },
-  { id:'t2', court:'Court 4', sport:'Padel', venue:'SportHub Arena',      schedule:'16:30 - 18:00', status:'CONFIRMED', dateGroup:'today',    dateLabel:'Oct 14' },
+  { id:'t1', court:'Court 1', sport:'Padel', venue:'SportHub Arena',      schedule:'10:00 - 12:00', status:'CONFIRMED', dateGroup:'today',    dateLabel:todayStr },
+  { id:'t2', court:'Court 4', sport:'Padel', venue:'SportHub Arena',      schedule:'16:30 - 18:00', status:'CONFIRMED', dateGroup:'today',    dateLabel:todayStr },
   // Tomorrow
-  { id:'tm1', court:'Court 4', sport:'Padel', venue:'Metro Sports Center', schedule:'16:30 - 18:00', status:'PAID',     dateGroup:'tomorrow', dateLabel:'Oct 15' },
+  { id:'tm1', court:'Court 4', sport:'Padel', venue:'Metro Sports Center', schedule:'16:30 - 18:00', status:'PAID',     dateGroup:'tomorrow', dateLabel:tomorrowStr },
 ]
 
 const PAST: Game[] = [
-  { id:'h1', court:'Court 2', sport:'Tennis', venue:'Elite Tennis Court',   schedule:'09:00 - 10:00', status:'PAID', dateGroup:'today',    dateLabel:'Oct 10' },
-  { id:'h2', court:'Court 1', sport:'Padel',  venue:'The Padel Club',       schedule:'14:00 - 16:00', status:'PAID', dateGroup:'today',    dateLabel:'Oct 8'  },
-  { id:'h3', court:'Court 3', sport:'Futsal', venue:'Senayan Sports Hall',  schedule:'19:00 - 21:00', status:'PAID', dateGroup:'tomorrow', dateLabel:'Oct 5'  },
+  { id:'h1', court:'Court 2', sport:'Tennis', venue:'Elite Tennis Court',   schedule:'09:00 - 10:00', status:'PAID', dateGroup:'today',    dateLabel:pastStr },
 ]
 
 /* ── Status styling ── */
@@ -167,12 +177,12 @@ export default function GamesPage() {
             initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
             className="px-4 flex flex-col gap-6 pt-6">
             {/* Group past by date label */}
-            {['Oct 10','Oct 8','Oct 5'].map(dateLabel => {
+            {[pastStr].map(dateLabel => {
               const dayGames = PAST.filter(g => g.dateLabel === dateLabel)
               if (!dayGames.length) return null
               return (
                 <DateSection key={dateLabel}
-                  label={dateLabel === 'Oct 10' ? 'Oct 10' : dateLabel}
+                  label={dateLabel}
                   date={dateLabel}
                   games={dayGames}
                   isPast />
@@ -187,6 +197,7 @@ export default function GamesPage() {
         initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }}
         transition={{ delay:0.4, type:'spring', stiffness:280, damping:20 }}
         whileTap={{ scale:0.9 }}
+        onClick={() => router.push('/select-sport')}
         className="fixed z-40 flex items-center justify-center tap-highlight"
         style={{
           bottom:'max(88px, calc(var(--sab,0px) + 76px))',
@@ -271,6 +282,20 @@ function GameCard({ game, onPay, isPast }: { game:Game; onPay?:()=>void; isPast?
                style={{ width:64, height:64, background:'#262626', borderRadius:10.67 }}>
             {isPending ? (
               <LuTimer size={32} color="#FFB800" strokeWidth={1.2} />
+            ) : game.status === 'PAID' && !isPast ? (
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="8" fill="#20201F"/>
+                <path d="M12 12H16V16H12V12ZM13 13V15H15V13H13Z" fill="#9E9E9E"/>
+                <path d="M24 12H28V16H24V12ZM25 13V15H27V13H25Z" fill="#9E9E9E"/>
+                <path d="M12 24H16V28H12V24ZM13 25V27H15V25H13Z" fill="#9E9E9E"/>
+                <rect x="18" y="12" width="4" height="2" fill="#9E9E9E"/>
+                <rect x="18" y="15" width="4" height="2" fill="#9E9E9E"/>
+                <rect x="25" y="18" width="3" height="3" fill="#9E9E9E"/>
+                <rect x="23" y="24" width="5" height="4" fill="#9E9E9E"/>
+                <rect x="19" y="24" width="2" height="4" fill="#9E9E9E"/>
+                <rect x="19" y="20" width="3" height="2" fill="#9E9E9E"/>
+                <rect x="13" y="19" width="3" height="3" fill="#9E9E9E"/>
+              </svg>
             ) : (
               <MdQrCode2 size={48} color="#ADAAAA" />
             )}
@@ -308,6 +333,7 @@ function GameCard({ game, onPay, isPast }: { game:Game; onPay?:()=>void; isPast?
           )}
           {game.status === 'PAID' && !isPast && (
             <motion.button whileTap={{ scale:0.94 }}
+              onClick={() => router.push(`/booking-pass/${game.id}`)}
               className="font-ui font-semibold text-[12px] px-6 h-[34px] rounded-full"
               style={{ background:'rgba(38,38,38,0.10)', border:'1px solid #2A2A2A', color:'#9E9E9E' }}>
               DETAILS
@@ -315,6 +341,7 @@ function GameCard({ game, onPay, isPast }: { game:Game; onPay?:()=>void; isPast?
           )}
           {isPast && (
             <motion.button whileTap={{ scale:0.94 }}
+              onClick={() => router.push(`/booking-pass/${game.id}`)}
               className="font-ui font-semibold text-[12px] px-6 h-[34px] rounded-full"
               style={{ background:'rgba(38,38,38,0.10)', border:'1px solid #2A2A2A', color:'#9E9E9E' }}>
               DETAILS

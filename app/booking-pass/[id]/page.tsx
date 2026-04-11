@@ -7,23 +7,43 @@ import { BsFillCheckCircleFill } from 'react-icons/bs'
 import { GrLocation } from 'react-icons/gr'
 import { mockVenues } from '@/lib/mock-data'
 
-/* ── Mock booking passes — solo and multi-player ── */
+/* ── Mock booking passes & Dynamic Dates ── */
+const TODAY = new Date()
+const TOMORROW = new Date()
+TOMORROW.setDate(TODAY.getDate() + 1)
+const PAST_DATE = new Date()
+PAST_DATE.setDate(TODAY.getDate() - 3)
+
+const formatDateFull = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+const passDateToday = formatDateFull(TODAY)
+const passDateTomorrow = formatDateFull(TOMORROW)
+const passDatePast = formatDateFull(PAST_DATE)
+
 const PASSES = [
   {
-    id: 'g-t1',
+    id: 'h1',
+    court: 'Court 2 - Tennis',
+    venue: 'Elite Tennis Court',
+    sport: 'Tennis',
+    date: passDatePast,
+    time: '09:00 - 10:00',
+    players: null,
+  },
+  {
+    id: 't1',
     court: 'Court 1 - Padel',
     venue: 'SportHub Arena',
     sport: 'Padel',
-    date: 'Oct 14, 2024',
+    date: passDateToday,
     time: '10:00 - 12:00',
     players: null,   // solo
   },
   {
-    id: 'g-t2',
+    id: 't2',
     court: 'Court 4 - Padel',
     venue: 'SportHub Arena',
     sport: 'Padel',
-    date: 'Oct 14, 2024',
+    date: passDateToday,
     time: '16:30 - 18:00',
     players: [
       { id:'me', name:'Alex Johnson', avatar:'AJ', role:'HOST',   status:'paid' },
@@ -33,11 +53,11 @@ const PASSES = [
     ],
   },
   {
-    id: 'g-tm1',
+    id: 'tm1',
     court: 'Court 4 - Padel',
     venue: 'Metro Sports Center',
     sport: 'Padel',
-    date: 'Oct 15, 2024',
+    date: passDateTomorrow,
     time: '16:30 - 18:00',
     players: [
       { id:'me', name:'Alex Johnson', avatar:'AJ', role:'HOST',   status:'paid' },
@@ -107,6 +127,12 @@ export default function BookingPassPage() {
 
   const pass = PASSES.find(p => p.id === id) || PASSES[0]
   const isMulti = !!pass.players && pass.players.length > 1
+  
+  // Date logic
+  const isToday = pass.date === passDateToday
+  const passDateTime = Date.parse(pass.date)
+  const todayTime = Date.parse(passDateToday)
+  const isPast = passDateTime < todayTime
 
   const sendReminder = (pid: string) => {
     setReminded(prev => { const n = new Set(prev); n.add(pid); return n })
@@ -153,12 +179,42 @@ export default function BookingPassPage() {
               GAME ENTRY PASS
             </p>
 
-            {/* QR Code box — bg:#FFF r:16 p:24, with green scan line */}
-            <div className="rounded-2xl overflow-hidden relative"
-                 style={{ background:'#FFFFFF', padding:24 }}>
-              <div style={{ width:'100%', aspectRatio:'1' }}>
+            {/* QR Code box — conditionally locked for future dates */}
+            <div className="rounded-2xl overflow-hidden relative flex flex-col items-center justify-center"
+                 style={{
+                   background: isToday ? '#FFFFFF' : '#131313',
+                   padding: 24,
+                   border: isToday ? 'none' : '1px solid #2A2A2A'
+                 }}>
+                 
+              {/* QR Code graphic */}
+              <div style={{ 
+                width:'100%', 
+                aspectRatio:'1', 
+                opacity: isToday ? 1 : 0.08, 
+                filter: isToday ? 'none' : 'grayscale(100%)' 
+              }}>
                 <QRCode />
               </div>
+
+              {/* Overlay for non-today games (future or past) */}
+              {!isToday && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
+                     style={{ zIndex: 10 }}>
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center mb-3"
+                       style={{ background:'rgba(255,255,255,0.05)' }}>
+                    <LuReceiptText size={24} color="#ADAAAA" />
+                  </div>
+                  <p className="font-heading font-bold text-white mb-2" style={{ fontSize:18 }}>
+                    {isPast ? 'QR Expired' : 'QR Secured'}
+                  </p>
+                  <p className="font-ui text-[14px]" style={{ color:'#808080', lineHeight: 1.5 }}>
+                    {isPast 
+                      ? <>This code has already expired<br/>and is no longer valid.</>
+                      : <>Your code will be generated<br/>on the day of the game.</>}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -271,11 +327,18 @@ export default function BookingPassPage() {
              background:'linear-gradient(to top, #020202 55%, transparent 100%)',
              padding:'20px 16px 0' }}>
 
-        {/* ADD TO WALLET — bg:#9CFF93 r:9999 h:64 */}
-        <motion.button whileTap={{ scale:0.97 }}
+        {/* ADD TO WALLET — Conditional logic based on isToday */}
+        <motion.button whileTap={isToday ? { scale:0.97 } : undefined}
+          disabled={!isToday}
           className="w-full flex items-center justify-center gap-2 font-heading font-bold mb-4"
-          style={{ background:'#9CFF93', color:'#006413', height:64, borderRadius:9999, fontSize:18 }}>
-          <LuWallet size={20} color="#006413" strokeWidth={1.8}/>
+          style={{ 
+            background: isToday ? '#9CFF93' : '#20201F', 
+            color: isToday ? '#006413' : '#555', 
+            height:64, borderRadius:9999, fontSize:18,
+            transition: 'background 0.25s, color 0.25s',
+            cursor: !isToday ? 'not-allowed' : 'pointer'
+          }}>
+          <LuWallet size={20} color={isToday ? "#006413" : "#555"} strokeWidth={1.8}/>
           ADD TO WALLET
         </motion.button>
 

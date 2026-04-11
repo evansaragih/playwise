@@ -55,7 +55,7 @@ export default function NotificationsPage() {
 
       {/* ══ SCROLLABLE CONTENT ══ */}
       <motion.div variants={stagger.container} initial="initial" animate="animate"
-        className="px-4 flex flex-col gap-4 pb-24">
+        className="px-4 flex flex-col gap-4 pt-6 pb-24">
         
         {mockNotifications.map((notif) => (
           <motion.div key={notif.id} variants={stagger.item}
