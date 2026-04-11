@@ -6,6 +6,18 @@ import { GrLocation } from 'react-icons/gr'
 import { LuChevronLeft, LuChevronRight, LuClock, LuPlus, LuPencil, LuTrash2 } from 'react-icons/lu'
 import { mockVenues } from '@/lib/mock-data'
 
+import { MdSportsTennis, MdSportsCricket } from 'react-icons/md'
+import { IoTennisball, IoFootball, IoBasketball } from 'react-icons/io5'
+
+const SPORT_ICONS: Record<string, React.ReactNode> = {
+  padel:     <MdSportsTennis  size={14} />,
+  tennis:    <IoTennisball    size={14} />,
+  futsal:    <IoFootball      size={14} />,
+  badminton: <IoBasketball    size={14} />,
+  cricket:   <MdSportsCricket size={14} />,
+  basket:    <IoBasketball    size={14} />,
+}
+
 const MON_SHORT  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const DAY_NAMES  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
@@ -14,6 +26,7 @@ interface BookingSlot {
   court: number
   hours: number[]   // e.g. [10,11] = 10:00–12:00
   date: Date
+  sport: string
 }
 
 function fmtSlotTime(hours: number[]) {
@@ -37,12 +50,12 @@ export default function BookingSummaryPage() {
 
   /* Build initial booking from query params */
   const initialSlots = useMemo(() => {
-    let rawBookings: {court: number, hours: number[], date: Date}[] = []
+    let rawBookings: {court: number, hours: number[], date: Date, sport: string}[] = []
     const cartParam = searchParams.get('cart')
     if (cartParam) {
        try {
          const parsed = JSON.parse(cartParam)
-         rawBookings = parsed.map((p: any) => ({ ...p, date: new Date(p.date) }))
+         rawBookings = parsed.map((p: any) => ({ ...p, date: new Date(p.date), sport: p.sport || venue?.sports[0] || 'padel' }))
        } catch(e){}
     }
 
@@ -52,12 +65,14 @@ export default function BookingSummaryPage() {
       const dateParam  = searchParams.get('date')
       const date       = dateParam ? new Date(dateParam) : new Date()
       const rawHours   = slotsParam.split(',').map(Number)
+      const sportParam = searchParams.get('sport') || venue?.sports[0] || 'padel'
       
       const existing = rawBookings.find(c => c.court === courtParam && c.date.toDateString() === date.toDateString())
       if (existing) {
          existing.hours = Array.from(new Set([...existing.hours, ...rawHours])).sort((a,b)=>a-b)
+         existing.sport = sportParam
       } else {
-         rawBookings.push({ court: courtParam, hours: rawHours, date })
+         rawBookings.push({ court: courtParam, hours: rawHours, date, sport: sportParam })
       }
     }
 
@@ -89,7 +104,8 @@ export default function BookingSummaryPage() {
                id: `slot-${b.court}-${seg[0]}-${idx}-${b.date.getTime()}`,
                court: b.court,
                hours: seg,
-               date: b.date
+               date: b.date,
+               sport: b.sport
             })
         })
     })
@@ -145,6 +161,7 @@ export default function BookingSummaryPage() {
       slots: slot.hours.join(','),
       court: String(slot.court),
       date:  slot.date.toISOString(),
+      sport: slot.sport,
       cart:  JSON.stringify(otherBookings)
     })
     router.push(`/schedule/${venue.id}?${params.toString()}`)
@@ -159,7 +176,14 @@ export default function BookingSummaryPage() {
              background:'#0E0E0E' }}>
         <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
         <div className="flex items-center gap-4 px-4 py-4">
-          <motion.button whileTap={{ scale:0.9 }} onClick={() => router.back()}
+          <motion.button whileTap={{ scale:0.9 }} onClick={() => {
+            const params = new URLSearchParams()
+            if (bookings.length > 0) {
+              const compact = bookings.map(b => ({ court: b.court, hours: b.hours, date: b.date.toISOString(), sport: b.sport }))
+              params.set('cart', JSON.stringify(compact))
+            }
+            router.push(`/schedule/${venue.id}?${params.toString()}`)
+          }}
             className="flex items-center justify-center flex-none tap-highlight liquid-glass-icon"
             style={{ width:40, height:40, borderRadius:9999 }}>
             <LuChevronLeft size={18} color="#F5F5F5" strokeWidth={2} />
@@ -259,19 +283,23 @@ export default function BookingSummaryPage() {
                               <p className="font-heading font-bold text-white" style={{ fontSize:18 }}>
                                 Court {slot.court}
                               </p>
-                              {/* Time — Lexend SemiBold 14px white, with clock icon */}
+                              {/* Time and Slots inline */}
                               <div className="flex items-center gap-1.5">
                                 <LuClock size={13} color="#9CFF93" strokeWidth={1.5} />
                                 <span className="font-ui font-semibold text-[14px] text-white">
                                   {fmtSlotTime(slot.hours)}
                                 </span>
+                                <span className="font-ui text-[12px] ml-1" style={{ color:'#ADAAAA' }}>
+                                  {slot.hours.length} SLOT{slot.hours.length > 1 ? 'S' : ''}
+                                </span>
                               </div>
                             </div>
                             <div className="flex flex-col gap-1 items-end">
-                              {/* Slots count — Lexend Regular 12px #ADAAAA */}
-                              <span className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>
-                                {slot.hours.length} SLOT{slot.hours.length > 1 ? 'S' : ''}
-                              </span>
+                              {/* Sport Name */}
+                              <div className="flex items-center gap-1.5 font-ui text-[12px]" style={{ color:'#ADAAAA' }}>
+                                <span style={{ color: '#ADAAAA' }}>{SPORT_ICONS[slot.sport] || <MdSportsTennis size={14} />}</span>
+                                <span className="capitalize">{slot.sport}</span>
+                              </div>
                               {/* Price — Space Grotesk Bold 18px #9CFF93 */}
                               <p className="font-heading font-bold" style={{ fontSize:18, color:'#9CFF93' }}>
                                 Rp {(slot.hours.length * pricePerSlot).toLocaleString('id-ID')}
@@ -313,7 +341,8 @@ export default function BookingSummaryPage() {
             <motion.button
               whileTap={{ scale:0.98 }}
               onClick={() => {
-                const params = new URLSearchParams({ cart: JSON.stringify(bookings) })
+                const compact = bookings.map(b => ({ court: b.court, hours: b.hours, date: b.date.toISOString(), sport: b.sport }))
+                const params = new URLSearchParams({ cart: JSON.stringify(compact) })
                 router.push(`/schedule/${venue.id}?${params.toString()}`)
               }}
               className="w-full flex items-center justify-center gap-2 font-ui font-semibold text-[16px] tap-highlight"

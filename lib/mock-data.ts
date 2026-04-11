@@ -1,7 +1,7 @@
 export const mockUser = {
   name: 'Alex',
   handle: '@alexj',
-  avatar: null,
+  avatar: '/avatar.png',
   level: 5,
   activityStreak: 12,
   // 5 active segments matching Figma progress bar
@@ -193,6 +193,7 @@ export const mockInsights = {
 export const mockProfile = {
   name: 'Alex Johnson',
   handle: '@alexj',
+  avatar: '/avatar.png',
   level: 5,
   totalGames: 36,
   totalFriends: 24,
@@ -216,3 +217,38 @@ export const mockProfile = {
     favoriteTime: '18:00 - 20:00',
   },
 }
+
+export const mockNotifications = [
+  {
+    id: 'n1',
+    type: 'booking',
+    title: 'Booking Confirmed!',
+    body: 'Your Padel session at SportHub Arena for tomorrow at 10:00 is confirmed.',
+    time: '2 hours ago',
+    unread: true,
+  },
+  {
+    id: 'n2',
+    type: 'reminder',
+    title: 'Upcoming Game Reminder',
+    body: 'Don\'t forget! You have a Tennis match at Metro Sports Center in 3 hours.',
+    time: '5 hours ago',
+    unread: true,
+  },
+  {
+    id: 'n3',
+    type: 'promo',
+    title: 'Weekend Promo 🎾',
+    body: 'Get 20% off all indoor futsal and padel bookings this weekend. Use code PLAY20.',
+    time: '1 day ago',
+    unread: false,
+  },
+  {
+    id: 'n4',
+    type: 'payment',
+    title: 'Payment Successful',
+    body: 'We have received your payment of Rp 340,000 for your recent Futsal booking.',
+    time: '2 days ago',
+    unread: false,
+  },
+]

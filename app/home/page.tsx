@@ -53,19 +53,21 @@ export default function HomePage() {
             </div>
             {/* Right icons */}
             <div className="flex items-center gap-3 flex-none">
-              <div className="liquid-glass-icon relative flex items-center justify-center"
-                   style={{ width:46, height:46, borderRadius:9999 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F3F3F3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                  <path d="M2 8c0-2.2.7-4.3 2-6"/><path d="M22 8a10 10 0 0 0-2-6"/>
-                </svg>
-                <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
-              </div>
+              <Link href="/notifications">
+                <div className="liquid-glass-icon relative flex items-center justify-center cursor-pointer tap-highlight"
+                     style={{ width:46, height:46, borderRadius:9999 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5F5F5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    <path d="M2 8c0-2.2.7-4.3 2-6"/><path d="M22 8a10 10 0 0 0-2-6"/>
+                  </svg>
+                  <span className="absolute top-[11px] right-[11px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
+                </div>
+              </Link>
               <Link href="/profile">
                 <div className="liquid-glass-icon flex items-center justify-center overflow-hidden"
                      style={{ width:46, height:46, borderRadius:9999 }}>
-                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
+                  <img src="/avatar.png"
                        alt="avatar" className="w-full h-full object-cover" style={{ borderRadius:9999 }} />
                 </div>
               </Link>

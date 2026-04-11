@@ -60,11 +60,17 @@ export default function ProfilePage() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 300, damping: 20 }}
-            className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black mb-3 relative"
-            style={{ background: 'linear-gradient(135deg, #006413, #00FF41)', color: '#020202' }}>
-            {mockProfile.name[0]}
+            className="mb-3 relative">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black overflow-hidden"
+                 style={{ background: 'linear-gradient(135deg, #006413, #00FF41)', color: '#020202' }}>
+              {mockProfile.avatar ? (
+                 <img src={mockProfile.avatar} alt="avatar" className="w-full h-full object-cover" />
+              ) : (
+                 mockProfile.name[0]
+              )}
+            </div>
             {/* Level badge */}
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black"
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black z-10"
                  style={{ background: '#FFB800', color: '#715200', border: '2px solid #020202' }}>
               {mockProfile.level}
             </div>

@@ -43,6 +43,7 @@ export default function SchedulePage() {
   const editCourt = editCourtParam ? parseInt(editCourtParam) : null
   const editDateParam = searchParams.get('date')
   const editDate = editDateParam ? new Date(editDateParam) : null
+  const editSportParam = searchParams.get('sport')
 
   const initialCart = useMemo(() => {
     let cart: any[] = []
@@ -59,23 +60,25 @@ export default function SchedulePage() {
       const d = searchParams.get('date') ? new Date(searchParams.get('date')!) : new Date()
       d.setHours(0,0,0,0)
       const hours = slotsParam.split(',').map(Number)
+      const sp = searchParams.get('sport') || venue?.sports[0] || 'padel'
       
       const idx = cart.findIndex(b => b.court === c && b.date.toDateString() === d.toDateString())
       if (idx !== -1) {
          cart[idx].hours = Array.from(new Set([...cart[idx].hours, ...hours])).sort((a,b)=>a-b)
+         cart[idx].sport = sp
       } else {
-         cart.push({ court: c, date: d, hours })
+         cart.push({ court: c, date: d, hours, sport: sp })
       }
     }
     return cart
-  }, [searchParams])
+  }, [searchParams, venue?.sports])
 
   const [localCart, setLocalCart] = useState<any[]>(initialCart)
   // Sync if navigation happens within same component instance
   useEffect(() => { setLocalCart(initialCart) }, [initialCart])
 
   const [selectedDay,   setDay]    = useState<Date>(() => editDate && !isNaN(editDate.getTime()) ? editDate : today)
-  const [selectedSport, setSport]  = useState<string>(() => venue?.sports[0] ?? 'padel')
+  const [selectedSport, setSport]  = useState<string>(() => editSportParam ?? venue?.sports[0] ?? 'padel')
   const [selectedCourt, setCourt]  = useState(editCourt ?? 1)
   const [sportLoading,  setLoading] = useState(false)
 
@@ -102,7 +105,11 @@ export default function SchedulePage() {
     if (slotStatus(selectedCourt, hour) === 'booked') return
 
     setLocalCart(prevCart => {
-      const idx = prevCart.findIndex(b => b.court === selectedCourt && b.date.toDateString() === selectedDay.toDateString())
+      const idx = prevCart.findIndex(b => 
+        b.court === selectedCourt && 
+        b.date.toDateString() === selectedDay.toDateString() &&
+        b.sport === selectedSport
+      )
       if (idx !== -1) {
         const item = prevCart[idx]
         if (item.hours.includes(hour)) {
@@ -113,11 +120,11 @@ export default function SchedulePage() {
           return newCart
         } else {
           const newCart = [...prevCart]
-          newCart[idx] = { ...item, hours: [...item.hours, hour].sort((a,b)=>a-b) }
+          newCart[idx] = { ...item, hours: [...item.hours, hour].sort((a,b)=>a-b), sport: selectedSport }
           return newCart
         }
       } else {
-        return [...prevCart, { court: selectedCourt, date: selectedDay, hours: [hour] }]
+        return [...prevCart, { court: selectedCourt, date: selectedDay, hours: [hour], sport: selectedSport }]
       }
     })
   }
@@ -267,10 +274,11 @@ export default function SchedulePage() {
               transition={{ duration:0.22 }}
               className="grid grid-cols-2 gap-[15px]">
               {ALL_HOURS.map((hour, i) => {
-                const isBooked   = slotStatus(selectedCourt, hour) === 'booked'
+                const isBooked = slotStatus(selectedCourt, hour) === 'booked'
                 const isSelected = localCart.some((b: any) => 
                   b.court === selectedCourt && 
                   b.date.toDateString() === selectedDay.toDateString() && 
+                  b.sport === selectedSport &&
                   b.hours.includes(hour)
                 )
                 return (

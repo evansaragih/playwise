@@ -104,7 +104,7 @@ export default function DiscoverPage() {
                 <span className="absolute top-[10px] right-[10px] w-1.5 h-1.5 rounded-full bg-[#00FF41]" />
               </div>
               <div className="liquid-glass-icon overflow-hidden" style={{ width:46, height:46, borderRadius:9999 }}>
-                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=92&h=92&fit=crop&crop=face&q=80"
+                <img src="/avatar.png"
                      alt="avatar" className="w-full h-full object-cover" />
               </div>
             </div>
