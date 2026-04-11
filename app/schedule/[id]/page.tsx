@@ -39,34 +39,44 @@ export default function SchedulePage() {
   const days   = useMemo(() => getDays(today, 14), [today])
 
   /* Pre-fill state from query params when coming back from edit */
-  const editCourt = searchParams.get('court') ? parseInt(searchParams.get('court')!) : null
-  const editSlots = searchParams.get('slots') ? searchParams.get('slots')!.split(',').map(Number) : []
+  const editCourtParam = searchParams.get('court')
+  const editCourt = editCourtParam ? parseInt(editCourtParam) : null
+  const editDateParam = searchParams.get('date')
+  const editDate = editDateParam ? new Date(editDateParam) : null
 
   const initialCart = useMemo(() => {
+    let cart: any[] = []
     const cartParam = searchParams.get('cart')
-    if (!cartParam) return []
-    try {
-      const parsed = JSON.parse(cartParam)
-      return parsed.map((p: any) => ({ ...p, date: new Date(p.date) }))
-    } catch(e) { return [] }
+    if (cartParam) {
+      try {
+        const parsed = JSON.parse(cartParam)
+        cart = parsed.map((p: any) => ({ ...p, date: new Date(p.date) }))
+      } catch(e) { }
+    }
+    const slotsParam = searchParams.get('slots')
+    if (slotsParam) {
+      const c = parseInt(searchParams.get('court') || '1')
+      const d = searchParams.get('date') ? new Date(searchParams.get('date')!) : new Date()
+      d.setHours(0,0,0,0)
+      const hours = slotsParam.split(',').map(Number)
+      
+      const idx = cart.findIndex(b => b.court === c && b.date.toDateString() === d.toDateString())
+      if (idx !== -1) {
+         cart[idx].hours = Array.from(new Set([...cart[idx].hours, ...hours])).sort((a,b)=>a-b)
+      } else {
+         cart.push({ court: c, date: d, hours })
+      }
+    }
+    return cart
   }, [searchParams])
 
   const [localCart, setLocalCart] = useState<any[]>(initialCart)
   // Sync if navigation happens within same component instance
   useEffect(() => { setLocalCart(initialCart) }, [initialCart])
 
-  const checkSlotBookedInCart = useCallback((court: number, hour: number, day: Date) => {
-    return localCart.some((b: any) => 
-      b.court === court && 
-      b.date.toDateString() === day.toDateString() &&
-      b.hours.includes(hour)
-    )
-  }, [localCart])
-
-  const [selectedDay,   setDay]    = useState<Date>(today)
+  const [selectedDay,   setDay]    = useState<Date>(() => editDate && !isNaN(editDate.getTime()) ? editDate : today)
   const [selectedSport, setSport]  = useState<string>(() => venue?.sports[0] ?? 'padel')
   const [selectedCourt, setCourt]  = useState(editCourt ?? 1)
-  const [selectedSlots, setSlots]  = useState<number[]>(editSlots)
   const [sportLoading,  setLoading] = useState(false)
 
   if (!venue) return (
@@ -77,8 +87,7 @@ export default function SchedulePage() {
 
   const pricePerSlot = parseInt(venue.price.replace(/[^0-9]/g, '')) || 200000
   
-  // Total active includes both actively selected and localCart items
-  const totalActiveSlots = selectedSlots.length + localCart.reduce((sum, b) => sum + b.hours.length, 0)
+  const totalActiveSlots = localCart.reduce((sum, b) => sum + b.hours.length, 0)
   const totalAmount  = totalActiveSlots * pricePerSlot
   const fmtAmount    = `Rp ${totalAmount.toLocaleString('id-ID')}`
   const monthLabel   = MON_NAMES[selectedDay.getMonth()] + ' ' + selectedDay.getFullYear()
@@ -86,38 +95,35 @@ export default function SchedulePage() {
   const changeSport = (s: string) => {
     if (s === selectedSport) return
     setLoading(true)
-    setSlots([])
     setTimeout(() => { setSport(s); setLoading(false) }, 900)
   }
 
   const toggleSlot = (hour: number) => {
     if (slotStatus(selectedCourt, hour) === 'booked') return
 
-    const cartItemIndex = localCart.findIndex((b: any) => b.court === selectedCourt && b.date.toDateString() === selectedDay.toDateString() && b.hours.includes(hour))
-    if (cartItemIndex !== -1) {
-       const b = localCart[cartItemIndex]
-       const newHours = b.hours.filter((h: number) => h !== hour)
-       if (newHours.length > 0) {
-          const newCart = [...localCart]
-          newCart[cartItemIndex] = { ...b, hours: newHours }
-          setLocalCart(newCart)
-       } else {
-          setLocalCart(localCart.filter((_, i) => i !== cartItemIndex))
-       }
-       return
-    }
-
-    setSlots(prev => prev.includes(hour) ? prev.filter(h => h !== hour) : [...prev, hour])
+    setLocalCart(prevCart => {
+      const idx = prevCart.findIndex(b => b.court === selectedCourt && b.date.toDateString() === selectedDay.toDateString())
+      if (idx !== -1) {
+        const item = prevCart[idx]
+        if (item.hours.includes(hour)) {
+          const newHours = item.hours.filter((h: number) => h !== hour)
+          if (newHours.length === 0) return prevCart.filter((_, i) => i !== idx)
+          const newCart = [...prevCart]
+          newCart[idx] = { ...item, hours: newHours }
+          return newCart
+        } else {
+          const newCart = [...prevCart]
+          newCart[idx] = { ...item, hours: [...item.hours, hour].sort((a,b)=>a-b) }
+          return newCart
+        }
+      } else {
+        return [...prevCart, { court: selectedCourt, date: selectedDay, hours: [hour] }]
+      }
+    })
   }
 
   const handleConfirm = () => {
     const params = new URLSearchParams()
-    
-    if (selectedSlots.length > 0) {
-       params.set('slots', selectedSlots.sort((a,b)=>a-b).join(','))
-       params.set('court', String(selectedCourt))
-       params.set('date', selectedDay.toISOString())
-    }
     
     if (localCart.length > 0) {
        params.set('cart', JSON.stringify(localCart))
@@ -171,7 +177,7 @@ export default function SchedulePage() {
                 const isSel = day.toDateString() === selectedDay.toDateString()
                 return (
                   <motion.button key={day.toISOString()} whileTap={{ scale:0.92 }}
-                    onClick={() => { setDay(day); setSlots([]) }}
+                    onClick={() => { setDay(day); }}
                     className="flex flex-col items-center justify-center rounded-2xl flex-none"
                     style={{ width:64, height:99,
                       background: isSel ? 'rgba(156,255,147,0.10)' : '#20201F',
@@ -216,7 +222,7 @@ export default function SchedulePage() {
               const isActive = selectedCourt === c
               return (
                 <motion.button key={c} whileTap={{ scale:0.92 }}
-                  onClick={() => { setCourt(c); setSlots([]) }}
+                  onClick={() => { setCourt(c); }}
                   className="flex items-center gap-2 font-ui font-semibold text-[12px] h-[34px] px-3 rounded-xl"
                   style={isActive
                     ? { background:'rgba(156,255,147,0.10)', border:'1px solid rgba(156,255,147,0.4)', color:'#9CFF93' }
@@ -261,10 +267,12 @@ export default function SchedulePage() {
               transition={{ duration:0.22 }}
               className="grid grid-cols-2 gap-[15px]">
               {ALL_HOURS.map((hour, i) => {
-                const isMockBooked = slotStatus(selectedCourt, hour) === 'booked'
-                const isCartBooked = checkSlotBookedInCart(selectedCourt, hour, selectedDay)
-                const isBooked   = isMockBooked
-                const isSelected = selectedSlots.includes(hour) || isCartBooked
+                const isBooked   = slotStatus(selectedCourt, hour) === 'booked'
+                const isSelected = localCart.some((b: any) => 
+                  b.court === selectedCourt && 
+                  b.date.toDateString() === selectedDay.toDateString() && 
+                  b.hours.includes(hour)
+                )
                 return (
                   <motion.button key={hour}
                     initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}

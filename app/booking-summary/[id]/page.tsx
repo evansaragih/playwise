@@ -37,53 +37,64 @@ export default function BookingSummaryPage() {
 
   /* Build initial booking from query params */
   const initialSlots = useMemo(() => {
-    let baseCart: BookingSlot[] = []
+    let rawBookings: {court: number, hours: number[], date: Date}[] = []
     const cartParam = searchParams.get('cart')
     if (cartParam) {
        try {
-         baseCart = JSON.parse(cartParam)
-         baseCart.forEach((b: any) => b.date = new Date(b.date))
+         const parsed = JSON.parse(cartParam)
+         rawBookings = parsed.map((p: any) => ({ ...p, date: new Date(p.date) }))
        } catch(e){}
     }
 
     const slotsParam = searchParams.get('slots')
-    if (!slotsParam) return baseCart
-
-    const courtParam = parseInt(searchParams.get('court') || '1')
-    const dateParam  = searchParams.get('date')
-    const date       = dateParam ? new Date(dateParam) : new Date()
-    const rawHours   = slotsParam.split(',').map(Number)
-
-    const sorted = [...rawHours].sort((a,b)=>a-b)
-    const segments: number[][] = []
-    let currentSegment: number[] = []
-    
-    sorted.forEach((hour) => {
-      if (currentSegment.length === 0) {
-        currentSegment.push(hour)
+    if (slotsParam) {
+      const courtParam = parseInt(searchParams.get('court') || '1')
+      const dateParam  = searchParams.get('date')
+      const date       = dateParam ? new Date(dateParam) : new Date()
+      const rawHours   = slotsParam.split(',').map(Number)
+      
+      const existing = rawBookings.find(c => c.court === courtParam && c.date.toDateString() === date.toDateString())
+      if (existing) {
+         existing.hours = Array.from(new Set([...existing.hours, ...rawHours])).sort((a,b)=>a-b)
       } else {
-        const last = currentSegment[currentSegment.length - 1]
-        if (hour === last + 1) {
-          currentSegment.push(hour)
-        } else {
-          segments.push(currentSegment)
-          currentSegment = [hour]
-        }
+         rawBookings.push({ court: courtParam, hours: rawHours, date })
       }
-    })
-    if (currentSegment.length > 0) {
-      segments.push(currentSegment)
     }
 
-    const newSlots = segments.map((hoursGroup, idx) => ({
-      // Use deterministic ID instead of Date.now() to prevent Hydration layout breakage
-      id: `slot-${courtParam}-${hoursGroup[0]}-${idx}`,
-      court: courtParam,
-      hours: hoursGroup,
-      date,
-    })) as BookingSlot[]
+    const segmentedBookings: BookingSlot[] = []
+    rawBookings.forEach((b) => {
+        const sorted = [...b.hours].sort((a,b)=>a-b)
+        const segments: number[][] = []
+        let currentSegment: number[] = []
+        
+        sorted.forEach((hour) => {
+          if (currentSegment.length === 0) {
+            currentSegment.push(hour)
+          } else {
+            const last = currentSegment[currentSegment.length - 1]
+            if (hour === last + 1) {
+              currentSegment.push(hour)
+            } else {
+              segments.push(currentSegment)
+              currentSegment = [hour]
+            }
+          }
+        })
+        if (currentSegment.length > 0) {
+          segments.push(currentSegment)
+        }
+        
+        segments.forEach((seg, idx) => {
+            segmentedBookings.push({
+               id: `slot-${b.court}-${seg[0]}-${idx}-${b.date.getTime()}`,
+               court: b.court,
+               hours: seg,
+               date: b.date
+            })
+        })
+    })
 
-    return [...baseCart, ...newSlots]
+    return segmentedBookings
   }, [searchParams])
 
   const [bookings, setBookings] = useState<BookingSlot[]>(initialSlots)
