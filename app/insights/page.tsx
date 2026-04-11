@@ -7,6 +7,7 @@ import { HiArrowNarrowDown } from 'react-icons/hi'
 import { MdSportsTennis } from 'react-icons/md'
 import { IoTennisball, IoFootball, IoBasketball } from 'react-icons/io5'
 import { MdSportsCricket } from 'react-icons/md'
+import Link from 'next/link'
 import BottomNav from '@/components/layout/BottomNav'
 import { InsightsSkeleton } from '@/components/ui/Skeleton'
 
