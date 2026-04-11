@@ -44,7 +44,19 @@ export default function PaymentPage() {
   const [mode, setMode]       = useState<PayMode>('full')
   const [players, setPlayers] = useState<Player[]>(INIT_PLAYERS)
   const [seconds, setSeconds] = useState(19*60+54)
-  const [loading, setLoading] = useState<LoadingPhase>('idle')
+  const [loading, setLoading]   = useState<LoadingPhase>('idle')
+  const [payMethod, setPayMethod] = useState({ id:'visa', label:'Visa •••• 4242', sub:'Expires 09/26' })
+
+  /* Read payment method selection from sessionStorage when coming back */
+  useEffect(() => {
+    const stored = typeof window !== 'undefined' ? sessionStorage.getItem('playwise_payment_method') : null
+    if (stored) {
+      try {
+        setPayMethod(JSON.parse(stored))
+        sessionStorage.removeItem('playwise_payment_method')
+      } catch(e) {}
+    }
+  }, [])
 
   useEffect(() => {
     const raw = typeof window !== 'undefined' ? sessionStorage.getItem('playwise_cart_sync') : null
@@ -137,21 +149,27 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/* Payment method */}
+        {/* Payment method — tap to open selector */}
         <div className="flex flex-col gap-3">
           <p className="font-ui font-semibold text-[12px] uppercase tracking-widest" style={{ color:'#ADAAAA', letterSpacing:'0.1em' }}>Choose Payment Method</p>
-          <div className="flex items-center justify-between h-[70px] px-4 rounded-xl" style={{ background:'#20201F' }}>
+          <motion.button whileTap={{ scale:0.98 }}
+            onClick={() => {
+              sessionStorage.setItem('playwise_payment_method', JSON.stringify(payMethod))
+              router.push(`/select-payment?current=${payMethod.id}&venueId=${id}`)
+            }}
+            className="flex items-center justify-between h-[70px] px-4 rounded-xl w-full tap-highlight"
+            style={{ background:'#20201F', border:'1.5px solid rgba(156,255,147,0.25)' }}>
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center rounded-[5px]" style={{ width:38, height:38, background:'rgba(255,255,255,0.05)' }}>
-                <LuCreditCard size={20} color="#F5F5F5" strokeWidth={1.5} />
+                <LuCreditCard size={20} color="#9CFF93" strokeWidth={1.5} />
               </div>
-              <div>
-                <p className="font-ui font-semibold text-[16px] text-white">•••• 4242</p>
-                <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>Expires 09/26</p>
+              <div className="text-left">
+                <p className="font-ui font-semibold text-[16px] text-white">{payMethod.label}</p>
+                <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>{payMethod.sub}</p>
               </div>
             </div>
-            <LuChevronRight size={16} color="#ADAAAA" />
-          </div>
+            <LuChevronRight size={16} color="#9CFF93" />
+          </motion.button>
         </div>
 
         {/* Pay In Full / Split toggle */}
@@ -286,23 +304,7 @@ export default function PaymentPage() {
       <div className="fixed z-50"
            style={{ bottom:0, left:'max(0px,calc(50% - 215px))', right:'max(0px,calc(50% - 215px))',
              background:'linear-gradient(to top, #020202 55%, transparent 100%)', padding:'20px 16px 0' }}>
-        <div className="mb-3">
-          <p className="font-ui font-semibold text-[12px] uppercase tracking-widest mb-2" style={{ color:'#ADAAAA', letterSpacing:'0.1em' }}>
-            {mode==='full'?'Choose Payment Method':'Choose Payment Mode'}
-          </p>
-          <div className="flex items-center justify-between h-[56px] px-4 rounded-xl" style={{ background:'#20201F' }}>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center rounded-[5px]" style={{ width:38, height:38, background:'rgba(255,255,255,0.05)' }}>
-                <LuCreditCard size={18} color="#F5F5F5" strokeWidth={1.5}/>
-              </div>
-              <div>
-                <p className="font-ui font-semibold text-[14px] text-white">•••• 4242</p>
-                <p className="font-ui text-[11px]" style={{ color:'#ADAAAA' }}>Expires 09/26</p>
-              </div>
-            </div>
-            <LuChevronRight size={14} color="#ADAAAA"/>
-          </div>
-        </div>
+
         <div className="flex justify-between items-baseline mb-3 px-1">
           <div>
             <p className="font-ui text-[12px]" style={{ color:'#ADAAAA' }}>Total Amount</p>
