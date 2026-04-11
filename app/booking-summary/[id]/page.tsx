@@ -164,7 +164,7 @@ export default function BookingSummaryPage() {
       sport: slot.sport,
       cart:  JSON.stringify(otherBookings)
     })
-    router.push(`/schedule/${venue.id}?${params.toString()}`)
+    router.replace(`/schedule/${venue.id}?${params.toString()}`)
   }
 
   return (
@@ -177,12 +177,13 @@ export default function BookingSummaryPage() {
         <div className="status-bar-spacer" style={{ background:'#0E0E0E' }} />
         <div className="flex items-center gap-4 px-4 py-4">
           <motion.button whileTap={{ scale:0.9 }} onClick={() => {
-            const params = new URLSearchParams()
             if (bookings.length > 0) {
               const compact = bookings.map(b => ({ court: b.court, hours: b.hours, date: b.date.toISOString(), sport: b.sport }))
-              params.set('cart', JSON.stringify(compact))
+              sessionStorage.setItem('playwise_cart_sync', JSON.stringify(compact))
+            } else {
+              sessionStorage.setItem('playwise_cart_sync', '[]')
             }
-            router.push(`/schedule/${venue.id}?${params.toString()}`)
+            router.back()
           }}
             className="flex items-center justify-center flex-none tap-highlight liquid-glass-icon"
             style={{ width:40, height:40, borderRadius:9999 }}>
@@ -342,8 +343,8 @@ export default function BookingSummaryPage() {
               whileTap={{ scale:0.98 }}
               onClick={() => {
                 const compact = bookings.map(b => ({ court: b.court, hours: b.hours, date: b.date.toISOString(), sport: b.sport }))
-                const params = new URLSearchParams({ cart: JSON.stringify(compact) })
-                router.push(`/schedule/${venue.id}?${params.toString()}`)
+                sessionStorage.setItem('playwise_cart_sync', JSON.stringify(compact))
+                router.back()
               }}
               className="w-full flex items-center justify-center gap-2 font-ui font-semibold text-[16px] tap-highlight"
               style={{ height:54, borderRadius:12,
@@ -360,7 +361,10 @@ export default function BookingSummaryPage() {
               <p className="font-heading font-bold text-white" style={{ fontSize:18 }}>No slots selected</p>
               <p className="font-ui text-[14px]" style={{ color:'#ADAAAA' }}>Go back to add booking slots</p>
               <motion.button whileTap={{ scale:0.97 }}
-                onClick={() => router.push(`/schedule/${venue.id}`)}
+                onClick={() => {
+                  sessionStorage.setItem('playwise_cart_sync', '[]')
+                  router.back()
+                }}
                 className="font-ui font-semibold text-[14px] px-6 py-3 rounded-full"
                 style={{ background:'rgba(156,255,147,0.15)', color:'#9CFF93',
                   border:'1px solid rgba(156,255,147,0.3)' }}>

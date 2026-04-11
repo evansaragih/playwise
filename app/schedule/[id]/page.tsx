@@ -74,8 +74,20 @@ export default function SchedulePage() {
   }, [searchParams, venue?.sports])
 
   const [localCart, setLocalCart] = useState<any[]>(initialCart)
-  // Sync if navigation happens within same component instance
-  useEffect(() => { setLocalCart(initialCart) }, [initialCart])
+  
+  useEffect(() => {
+    const sync = typeof window !== 'undefined' ? sessionStorage.getItem('playwise_cart_sync') : null
+    if (sync) {
+       try {
+         const parsed = JSON.parse(sync).map((p: any) => ({ ...p, date: new Date(p.date) }))
+         setLocalCart(parsed)
+       } catch(e) {}
+       // Delayed removal to bypass React 18 Strict Mode double-invocation bug in local dev
+       setTimeout(() => sessionStorage.removeItem('playwise_cart_sync'), 100)
+    } else {
+       setLocalCart(initialCart)
+    }
+  }, [initialCart])
 
   const [selectedDay,   setDay]    = useState<Date>(() => editDate && !isNaN(editDate.getTime()) ? editDate : today)
   const [selectedSport, setSport]  = useState<string>(() => editSportParam ?? venue?.sports[0] ?? 'padel')
